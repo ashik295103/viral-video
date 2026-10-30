@@ -1,73 +1,173 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Viral Video</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
 <style>
 :root{--bg:#0a0a14;--c:#18182b;--g:#00e5ff;--p:#b44cff;--t:#eee}
-*{box-sizing:border-box;margin:0}body{background:radial-gradient(circle at 20% 0,#1a1040,var(--bg) 60%) fixed;color:var(--t);font-family:system-ui,sans-serif;padding-bottom:70px}
-.tk{background:#000;overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--g)}.tk span{display:inline-block;padding:6px 0;padding-left:100%;animation:m 18s linear infinite;color:var(--g)}@keyframes m{to{transform:translateX(-100%)}}
+*{box-sizing:border-box;margin:0}
+body{background:radial-gradient(circle at 20% 0,#1a1040,var(--bg) 60%) fixed;color:var(--t);font-family:system-ui,sans-serif;padding-bottom:70px}
+.tk{background:#000;overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--g)}
+.tk span{display:inline-block;padding:6px 0;padding-left:100%;animation:m 18s linear infinite;color:var(--g)}
+@keyframes m{to{transform:translateX(-100%)}}
 h1{text-align:center;padding:14px;text-shadow:0 0 18px var(--g),0 0 40px var(--p)}
-nav{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}nav button{flex:none;background:var(--c);color:var(--t);border:1px solid #333;border-radius:20px;padding:8px 16px;transition:.3s}nav button.on{background:linear-gradient(135deg,var(--p),var(--g));box-shadow:0 0 16px var(--g)}
+nav{display:flex;gap:8px;overflow-x:auto;padding:8px 12px}
+nav button{flex:none;background:var(--c);color:var(--t);border:1px solid #333;border-radius:20px;padding:8px 16px;transition:.3s}
+nav button.on{background:linear-gradient(135deg,var(--p),var(--g));box-shadow:0 0 16px var(--g)}
 #q{display:block;width:calc(100% - 24px);margin:6px 12px;padding:10px;border-radius:10px;border:1px solid #333;background:var(--c);color:var(--t)}
-#bn{margin:8px 12px;overflow:hidden;border-radius:12px;position:relative}#bn:empty{display:none}#bn div{display:flex;transition:transform .6s}#bn a{flex:none;width:100%}#bn img{width:100%;display:block}
+#bn{margin:8px 12px;overflow:hidden;border-radius:12px;position:relative}
+#bn:empty{display:none}
+#bn div{display:flex;transition:transform .6s}
+#bn a{flex:none;width:100%}
+#bn img{width:100%;display:block}
 #gr{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px;perspective:900px}
-.cd{background:var(--c);border-radius:14px;overflow:hidden;transition:.3s;box-shadow:0 6px 20px #0008}.cd:hover{transform:rotateX(4deg) translateY(-6px);box-shadow:0 0 22px var(--p)}
-.cd img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}.cd .i{padding:8px}.cd h3{font-size:14px;height:36px;overflow:hidden}.cd small{color:#999;display:block;margin:4px 0}
-.b{background:linear-gradient(135deg,var(--p),var(--g));border:0;color:#fff;border-radius:8px;padding:7px 10px;margin:2px 2px 0 0;font-size:12px;cursor:pointer}
-#pg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px}#pg button{background:var(--c);color:var(--t);border:1px solid #333;border-radius:8px;padding:8px 12px}#pg .on{background:var(--p)}
-.ft{position:fixed;bottom:0;left:0;right:0;background:#000d;padding:10px;text-align:center;backdrop-filter:blur(8px)}.ft a{color:#fff;background:#229ed9;padding:9px 18px;border-radius:24px;text-decoration:none;box-shadow:0 0 14px #229ed9;margin:0 3px;display:inline-block}.ft a.fb{background:#1877f2;box-shadow:0 0 14px #1877f2}
-.ov{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:9;padding:16px}.ov.on{display:flex}
-.mb{background:var(--c);border:1px solid var(--p);border-radius:16px;padding:20px;max-width:360px;width:100%;position:relative;animation:z .3s}@keyframes z{from{transform:scale(.7);opacity:0}}
-.mb input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #333;background:#0a0a14;color:var(--t)}.x{position:absolute;right:10px;top:6px;background:0;border:0;color:#fff;font-size:22px}
+.cd{background:var(--c);border-radius:14px;overflow:hidden;transition:.3s;box-shadow:0 6px 20px #0008;cursor:pointer}
+.cd:hover{transform:rotateX(4deg) translateY(-4px);box-shadow:0 0 22px var(--p)}
+.cd img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block}
+.cd .i{padding:8px}
+.cd h3{font-size:14px;min-height:36px;overflow:hidden}
+.cd small{color:#999;display:block;margin:4px 0}
+.b{background:linear-gradient(135deg,var(--p),var(--g));border:0;color:#fff;border-radius:8px;padding:9px 12px;margin:4px 3px 0 0;font-size:13px;cursor:pointer}
+#pg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:10px}
+#pg button{background:var(--c);color:var(--t);border:1px solid #333;border-radius:8px;padding:8px 12px}
+#pg .on{background:var(--p)}
+.ft{position:fixed;bottom:0;left:0;right:0;background:#000d;padding:10px;text-align:center;backdrop-filter:blur(8px);z-index:5}
+.ft a{color:#fff;background:#229ed9;padding:9px 18px;border-radius:24px;text-decoration:none;box-shadow:0 0 14px #229ed9;margin:0 3px;display:inline-block}
+.ft a.fb{background:#1877f2;box-shadow:0 0 14px #1877f2}
+.ov{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:9;padding:16px}
+.ov.on{display:flex}
+.mb{background:var(--c);border:1px solid var(--p);border-radius:16px;padding:20px;max-width:360px;width:100%;position:relative;animation:z .3s}
+@keyframes z{from{transform:scale(.7);opacity:0}}
+.mb input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #333;background:#0a0a14;color:var(--t)}
+.x{position:absolute;right:10px;top:6px;background:0;border:0;color:#fff;font-size:22px}
 .mb a{color:var(--g)}
-</style></head><body>
-<div class="tk"><span id="tk"></span></div><h1>🔥 Viral Video</h1>
-<nav id="nv"></nav><input id="q" placeholder="🔍 সার্চ করুন..."><div id="bn"></div><div id="gr"></div><div id="pg"></div>
+#detail{display:none;padding:12px;max-width:850px;margin:auto}
+#detail .panel{background:var(--c);border:1px solid #38304d;border-radius:16px;overflow:hidden;box-shadow:0 8px 28px #0008}
+#detail .hero{width:100%;max-height:480px;aspect-ratio:16/9;object-fit:contain;background:#05050a;display:block}
+#detail .body{padding:16px}
+#detail h2{font-size:21px;line-height:1.4;margin:8px 0 10px}
+#detail .meta{color:#aaa;font-size:13px;margin-bottom:14px}
+#detail .desc{white-space:pre-wrap;line-height:1.8;color:#ddd;overflow-wrap:anywhere;margin:12px 0 18px}
+#detail .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+#detail .actions .b{font-size:15px;padding:11px 20px}
+#detail .back{background:#29243a;border:1px solid #51436b}
+@media(max-width:420px){#detail h2{font-size:18px}#detail .body{padding:12px}}
+</style>
+</head>
+<body>
+<div class="tk"><span id="tk"></span></div>
+<h1>🔥 Viral Video</h1>
+<nav id="nv"></nav>
+<input id="q" placeholder="🔍 সার্চ করুন...">
+<div id="bn"></div>
+<div id="detail"></div>
+<div id="gr"></div>
+<div id="pg"></div>
 <div style="text-align:center;padding:8px"><button class="b" id="au"></button></div>
-<div class="ft"><a id="tgb" target="_blank">📢 Telegram এ জয়েন করুন</a><a id="fbb" class="fb" target="_blank" style="display:none">Facebook</a></div>
+<div class="ft"><a id="tgb" target="_blank" rel="noopener">📢 Telegram এ জয়েন করুন</a><a id="fbb" class="fb" target="_blank" rel="noopener" style="display:none">Facebook</a></div>
+
 <div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
-<div class="ov" id="pop"><div class="mb"><button class="x" onclick="cl('pop')">×</button><a id="pa" target="_blank"><img id="pi" style="width:100%;border-radius:10px"></a></div></div>
+<div class="ov" id="pop"><div class="mb"><button class="x" onclick="cl('pop')">×</button><a id="pa" target="_blank" rel="noopener"><img id="pi" style="width:100%;border-radius:10px"></a></div></div>
+
 <script>
 const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
-let S={},page=1,cat='video',q='',prof=null;const PER=10;
+let S={},page=1,cat='video',q='',prof=null,currentPost=null;
+const PER=10;
 const NV=[['video','ভিডিও'],['photo','ফটো'],['story','গল্প'],['viral','ভাইরাল'],['premium','প্রিমিয়াম']];
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function ago(d){const s=(Date.now()-new Date(d))/1000,u=[[31536e3,'year'],[2592e3,'month'],[86400,'day'],[3600,'hour'],[60,'minute']];for(const[n,l]of u)if(s>=n){const v=Math.floor(s/n);return v+' '+l+(v>1?'s':'')+' ago'}return 'just now'}
 const tgl=()=>{const a=S.success_tg||S.admin_tg||'sgboss27';return /^http/.test(a)?a:'https://t.me/'+a.replace('@','')};
 function showForm(){$('lt').textContent='প্রিমিয়াম কনটেন্টের জন্য অ্যাকাউন্ট করুন এবং সাবস্ক্রিপশনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।';$('fm').style.display='block';$('lock').classList.add('on')}
-function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" href="${tgl()}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
+function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" rel="noopener" href="${esc(tgl())}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
 async function init(){
- S=(await sb.from('settings').select('*').eq('id',1).single()).data||{};
- $('tk').textContent=S.ticker||'';if(S.tg_channel)$('tgb').href=S.tg_channel;else $('tgb').style.display='none';
+ const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};
+ $('tk').textContent=S.ticker||'';
+ if(S.tg_channel)$('tgb').href=S.tg_channel;else $('tgb').style.display='none';
  if(S.fb){$('fbb').href=S.fb;$('fbb').style.display='inline-block'}
  if(S.adsterra_script){const d=document.createElement('div');d.innerHTML=S.adsterra_script;d.querySelectorAll('script').forEach(o=>{const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;document.body.appendChild(n)})}
- await me();nav();ads();route();
+ await me();nav();ads();
  $('q').oninput=e=>{q=e.target.value;page=1;load()};
+ window.addEventListener('popstate',route);
+ route();
 }
 async function me(){const{data:{session}}=await sb.auth.getSession();prof=null;if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;
- $('au').textContent=session?'Logout ('+(prof?.status||'')+')':'Login / Register';$('au').onclick=()=>session?sb.auth.signOut().then(()=>location.reload()):showForm()}
+ $('au').textContent=session?'Logout ('+(prof?.status||'')+')':'Login / Register';
+ $('au').onclick=()=>session?sb.auth.signOut().then(()=>location.reload()):showForm()}
 function nav(){$('nv').innerHTML=NV.map(([k,l])=>`<button class="${k==cat?'on':''}" onclick="cat='${k}';page=1;nav();load()">${l}</button>`).join('')}
-function route(){const p=new URLSearchParams(location.search).get('p');if(p)watch(+p);load()}
+function route(){
+ const params=new URLSearchParams(location.search),id=params.get('v')||params.get('p');
+ if(id&&/^\d+$/.test(id)){showDetails(id);return}
+ showList();
+}
+function showList(){
+ currentPost=null;$('detail').style.display='none';$('gr').style.display='grid';$('pg').style.display='flex';
+ $('nv').style.display='flex';$('q').style.display='block';$('bn').style.display='block';
+ document.title='Viral Video';load();
+}
+async function showDetails(id){
+ $('gr').style.display='none';$('pg').style.display='none';$('nv').style.display='none';$('q').style.display='none';$('bn').style.display='none';
+ $('detail').style.display='block';$('detail').innerHTML='<p style="text-align:center;padding:35px">লোড হচ্ছে...</p>';
+ const{data:p,error}=await sb.from('posts').select('*').eq('id',id).maybeSingle();
+ if(error||!p){$('detail').innerHTML='<div class="panel body"><p>দুঃখিত, এই কনটেন্টটি পাওয়া যায়নি।</p><button class="b back" onclick="goHome()">← ফিরে যান</button></div>';return}
+ currentPost=p;document.title=(p.title||'Video Details')+' | Viral Video';
+ sb.rpc('hit',{pid:p.id,k:'view'});
+ const url=shareUrl(p.id);
+ $('detail').innerHTML=`<div class="panel">
+ ${p.thumb?`<img class="hero" src="${esc(p.thumb)}" alt="${esc(p.title)}">`:''}
+ <div class="body">
+ <button class="b back" onclick="goHome()">← ফিরে যান</button>
+ <h2>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h2>
+ <div class="meta">📅 ${esc(new Date(p.created_at).toLocaleDateString('bn-BD'))} &nbsp;•&nbsp; 👁 ${Number(p.views||0)+1} views &nbsp;•&nbsp; 🏷️ ${esc(p.category||'')}</div>
+ <div class="desc">${esc(p.descr||'এই কনটেন্টের কোনো বিবরণ দেওয়া হয়নি।')}</div>
+ ${p.tags?`<div class="meta">ট্যাগ: ${esc(p.tags)}</div>`:''}
+ <div class="actions"><button class="b" onclick="downloadPost(${Number(p.id)})">⬇️ Download</button><button class="b" onclick="sharePost(${Number(p.id)})">🔗 Share</button></div>
+ <p class="meta" style="margin-top:12px">শেয়ার লিংক: <span style="color:var(--g);overflow-wrap:anywhere">${esc(url)}</span></p>
+ </div></div>`;
+}
+function shareUrl(id){return location.origin+location.pathname+'?v='+encodeURIComponent(id)}
+function goHome(){history.pushState({},'',location.pathname);route();window.scrollTo(0,0)}
+async function openDetails(id){history.pushState({},'',location.pathname+'?v='+encodeURIComponent(id));await showDetails(id);window.scrollTo(0,0)}
 async function load(){
  let r=sb.from('posts').select('*',{count:'exact'}).order('created_at',{ascending:false}).range((page-1)*PER,page*PER-1);
- r=cat=='viral'?r.eq('type','viral'):cat=='premium'?r.eq('type','premium'):r.eq('category',cat).neq('type','premium');
+ r=cat==='viral'?r.eq('type','viral'):cat==='premium'?r.eq('type','premium'):r.eq('category',cat).neq('type','premium');
  if(q)r=r.or(`title.ilike.%${q}%,tags.ilike.%${q}%`);
- const{data,count}=await r;$('gr').innerHTML=(data||[]).map(p=>`<div class="cd"><img src="${p.thumb||''}" loading="lazy"><div class="i"><h3>${p.type=='premium'?'🔒 ':''}${esc(p.title)}</h3><small>${ago(p.created_at)} • 👁 ${p.views}</small><button class="b" onclick="watch(${p.id})">▶ Watch/Download</button><button class="b" onclick="shr(${p.id})">🔗 Share</button></div></div>`).join('')||'<p style="grid-column:1/3;text-align:center">কিছু নেই</p>';
+ const{data,count}=await r;
+ $('gr').innerHTML=(data||[]).map(p=>`<div class="cd" role="button" tabindex="0" onclick="openDetails(${Number(p.id)})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetails(${Number(p.id)})}">
+ ${p.thumb?`<img src="${esc(p.thumb)}" loading="lazy" alt="${esc(p.title)}">`:''}
+ <div class="i"><h3>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h3><small>${ago(p.created_at)} • 👁 ${Number(p.views||0)}</small><button class="b" onclick="event.stopPropagation();openDetails(${Number(p.id)})">▶ Details / Download</button></div></div>`).join('')||'<p style="grid-column:1/3;text-align:center">কিছু নেই</p>';
  if(data?.length)sb.rpc('imp',{ids:data.map(p=>p.id)});
- const n=Math.ceil((count||0)/PER);let h='';for(let i=1;i<=Math.min(n,4);i++)h+=`<button class="${i==page?'on':''}" onclick="page=${i};load();scrollTo(0,0)">${i}</button>`;
- if(page<n)h+=`<button onclick="page++;load();scrollTo(0,0)">Next</button>`;$('pg').innerHTML=h}
-const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function shr(id){const u=location.origin+location.pathname+'?p='+id;navigator.share?navigator.share({url:u}):(navigator.clipboard.writeText(u),alert('লিংক কপি হয়েছে'))}
-async function watch(id){
- if(S.adsterra_link)window.open(S.adsterra_link,'_blank');
+ const n=Math.ceil((count||0)/PER);let h='';
+ for(let i=1;i<=Math.min(n,4);i++)h+=`<button class="${i===page?'on':''}" onclick="page=${i};load();scrollTo(0,0)">${i}</button>`;
+ if(page<n)h+=`<button onclick="page++;load();scrollTo(0,0)">Next</button>`;
+ $('pg').innerHTML=h;
+}
+async function sharePost(id){
+ const u=shareUrl(id);
+ try{if(navigator.share){await navigator.share({title:currentPost?.title||'Viral Video',url:u})}
+ else{await navigator.clipboard.writeText(u);alert('শেয়ার লিংক কপি হয়েছে।')}}
+ catch(e){if(e.name!=='AbortError'){prompt('এই লিংকটি কপি করুন:',u)}}
+}
+async function downloadPost(id){
+ if(S.adsterra_link)window.open(S.adsterra_link,'_blank','noopener');
  const{data,error}=await sb.rpc('get_link',{pid:id});
  if(error){if(/disabled/.test(error.message))return alert('আপনার অ্যাকাউন্ট বন্ধ করা হয়েছে।');return prof?showSub():showForm()}
- sb.rpc('hit',{pid:id,k:'view'});
- if(data.tg)location.href=`https://t.me/${(S.bot_username||'').replace('@','')}?start=video_${data.tg}`;else if(data.direct)location.href=data.direct}
-async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')}}});
- if(error)return alert(error.message);await me();showSub()}
+ if(data?.tg)location.href=`https://t.me/${(S.bot_username||'').replace('@','')}?start=video_${data.tg}`;
+ else if(data?.direct)location.href=data.direct;
+ else alert('এই কনটেন্টের ডাউনলোড লিংক এখনো যুক্ত করা হয়নি।');
+}
+async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')}}});if(error)return alert(error.message);await me();showSub()}
 async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value});if(error)return alert(error.message);cl('lock');me()}
-async function ads(){const now=new Date().toISOString();const{data}=await sb.from('ads').select('*').eq('active',true).or(`expires_at.is.null,expires_at.gt.${now}`);
- const bn=(data||[]).filter(a=>a.kind=='banner'),pp=(data||[]).filter(a=>a.kind=='popup');
- if(bn.length){$('bn').innerHTML='<div>'+bn.map(a=>`<a href="${a.link}" target="_blank" onclick="sb.rpc('ad_click',{aid:${a.id}})"><img src="${a.image_url}"></a>`).join('')+'</div>';let i=0;setInterval(()=>{i=(i+1)%bn.length;$('bn').firstChild.style.transform=`translateX(-${i*100}%)`},4000)}
- const last=+localStorage.getItem('pp')||0;if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;$('pa').href=a.link;$('pa').onclick=()=>sb.rpc('ad_click',{aid:a.id});setTimeout(()=>{$('pop').classList.add('on');localStorage.setItem('pp',Date.now())},3000)}}
+async function ads(){
+ const now=new Date().toISOString();const{data}=await sb.from('ads').select('*').eq('active',true).or(`expires_at.is.null,expires_at.gt.${now}`);
+ const bn=(data||[]).filter(a=>a.kind==='banner'),pp=(data||[]).filter(a=>a.kind==='popup');
+ if(bn.length){$('bn').innerHTML='<div>'+bn.map(a=>`<a href="${esc(a.link)}" target="_blank" rel="noopener" onclick="sb.rpc('ad_click',{aid:${Number(a.id)}})"><img src="${esc(a.image_url)}"></a>`).join('')+'</div>';let i=0;setInterval(()=>{if($('bn').firstChild){i=(i+1)%bn.length;$('bn').firstChild.style.transform=`translateX(-${i*100}%)`}},4000)}
+ const last=+localStorage.getItem('pp')||0;
+ if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;$('pa').href=a.link;$('pa').onclick=()=>sb.rpc('ad_click',{aid:a.id});setTimeout(()=>{$('pop').classList.add('on');localStorage.setItem('pp',Date.now())},3000)}
+}
 init();
-</script></body></html>
+</script>
+</body>
+</html>
