@@ -45,7 +45,7 @@ def ts(dt):
 
 
 # ==============================
-# SUPABASE
+# SUPABASE GET
 # ==============================
 
 async def get(path):
@@ -60,6 +60,10 @@ async def get(path):
             r.raise_for_status()
             return await r.json()
 
+
+# ==============================
+# SCHEDULE DELETE
+# ==============================
 
 async def schedule(chat, *ids):
 
@@ -89,7 +93,7 @@ async def schedule(chat, *ids):
 
 
 # ==============================
-# PRIVATE CHANNEL PEER RESOLUTION
+# RESOLVE PRIVATE CHANNEL PEER
 # ==============================
 
 async def ensure_source_peer(c):
@@ -98,80 +102,26 @@ async def ensure_source_peer(c):
 
     async with source_lock:
 
-        if source_ready:
-            return True
-
-        print(
-            "RESOLVING SOURCE CHANNEL:",
-            LOG,
-            flush=True
-        )
-
-        # First try existing session cache
         try:
 
             await c.resolve_peer(LOG)
 
+            source_ready = True
+
             print(
-                "SOURCE PEER FOUND IN SESSION CACHE",
+                "SOURCE PEER RESOLVED SUCCESSFULLY:",
+                LOG,
                 flush=True
             )
 
-            source_ready = True
             return True
 
         except Exception as e:
 
-            print(
-                "SESSION CACHE MISS:",
-                repr(e),
-                flush=True
-            )
-
-        # Load peers from Telegram dialogs
-        try:
-
-            found = False
-
-            async for dialog in c.get_dialogs():
-
-                if dialog.chat.id == LOG:
-
-                    found = True
-
-                    print(
-                        "SOURCE CHANNEL FOUND:",
-                        dialog.chat.id,
-                        dialog.chat.title,
-                        flush=True
-                    )
-
-                    break
-
-            if not found:
-
-                print(
-                    "SOURCE CHANNEL NOT FOUND IN DIALOGS",
-                    flush=True
-                )
-
-                return False
-
-            # Resolve after loading dialog
-            await c.resolve_peer(LOG)
+            source_ready = False
 
             print(
-                "SOURCE PEER RESOLVED SUCCESSFULLY!",
-                flush=True
-            )
-
-            source_ready = True
-            return True
-
-        except Exception as e:
-
-            print(
-                "SOURCE PEER ERROR:",
+                "SOURCE PEER NOT READY:",
                 repr(e),
                 flush=True
             )
@@ -180,10 +130,12 @@ async def ensure_source_peer(c):
 
 
 # ==============================
-# CHANNEL POST DETECTION
+# CHANNEL POST HANDLER
 # ==============================
 
 async def channel_post(c, m):
+
+    global source_ready
 
     print(
         "CHANNEL DETECTED:",
@@ -193,40 +145,22 @@ async def channel_post(c, m):
         flush=True
     )
 
-    if m.chat.id == LOG:
-
-        print(
-            "LOG CHANNEL VERIFIED!",
-            flush=True
-        )
-
-        global source_ready
-        source_ready = False
-
-        try:
-            await c.resolve_peer(LOG)
-
-            source_ready = True
-
-            print(
-                "CHANNEL PEER UPDATED!",
-                flush=True
-            )
-
-        except Exception as e:
-
-            print(
-                "CHANNEL PEER UPDATE ERROR:",
-                repr(e),
-                flush=True
-            )
-
-    else:
+    if m.chat.id != LOG:
 
         print(
             "CHANNEL ID DOES NOT MATCH LOG_CHANNEL!",
             flush=True
         )
+
+        return
+
+    print(
+        "LOG CHANNEL VERIFIED!",
+        flush=True
+    )
+
+    # New channel update may populate peer information
+    await ensure_source_peer(c)
 
 
 # ==============================
@@ -243,6 +177,7 @@ async def start(c, m):
 
     try:
 
+        # Check command
         if (
             len(m.command) < 2
             or not m.command[1].startswith("video_")
@@ -255,7 +190,7 @@ async def start(c, m):
 
         mid = int(m.command[1][6:])
 
-        # Get video information from Supabase
+        # Get post information
         r = await get(
             f"/post_links?tg_msg_id=eq.{mid}"
             "&select=posts(type)"
@@ -287,9 +222,12 @@ async def start(c, m):
         # Premium verification
         if post.get("type") == "premium":
 
-            u = m.from_user.username
+            username = (
+                m.from_user.username
+                if m.from_user else None
+            )
 
-            if not u:
+            if not username:
 
                 return await m.reply(
                     "🔒 Premium ব্যবহারের জন্য "
@@ -297,7 +235,7 @@ async def start(c, m):
                 )
 
             ok = await get(
-                f"/profiles?tg_username=ilike.{u}"
+                f"/profiles?tg_username=ilike.{username}"
                 "&status=eq.approved&select=id"
             )
 
@@ -309,13 +247,13 @@ async def start(c, m):
                     "অনুমোদন নিন।"
                 )
 
-        # Resolve private channel peer
+        # Check source peer
         ready = await ensure_source_peer(c)
 
         if not ready:
 
             return await m.reply(
-                "⚠️ ভিডিও সার্ভার প্রস্তুত নয়। "
+                "⚠️ ভিডিও সার্ভার এখনো প্রস্তুত নয়। "
                 "অ্যাডমিনকে জানান।"
             )
 
@@ -371,13 +309,14 @@ async def start(c, m):
             flush=True
         )
 
+        # Expiry notice
         n = await m.reply(
             f"⏳ এই ভিডিও {HOURS} ঘণ্টা পর "
             "অটো ডিলিট হয়ে যাবে। আবার দেখতে হলে "
             "ওয়েবসাইট থেকে আসুন।"
         )
 
-        # Schedule deletion
+        # Schedule all messages
         await schedule(
             m.chat.id,
             v.id,
@@ -467,7 +406,7 @@ async def sweeper():
                         flush=True
                     )
 
-                # Remove processed database entry
+                # Remove processed row
                 async with aiohttp.ClientSession() as s:
 
                     async with s.delete(
@@ -548,7 +487,32 @@ async def main():
         in_memory=True
     )
 
-    # Start Telegram client
+    # Register handlers BEFORE starting
+    app.add_handler(
+        MessageHandler(
+            start,
+            filters.command("start") & filters.private
+        ),
+        group=0
+    )
+
+    app.add_handler(
+        MessageHandler(
+            anymsg,
+            filters.private & ~filters.command("start")
+        ),
+        group=1
+    )
+
+    app.add_handler(
+        MessageHandler(
+            channel_post,
+            filters.channel
+        ),
+        group=2
+    )
+
+    # Start bot
     await app.start()
 
     me = await app.get_me()
@@ -565,35 +529,8 @@ async def main():
         flush=True
     )
 
-    # Resolve private source channel
+    # Try resolving existing peer
     await ensure_source_peer(app)
-
-    # Private start command
-    app.add_handler(
-        MessageHandler(
-            start,
-            filters.command("start") & filters.private
-        ),
-        group=0
-    )
-
-    # Other private messages
-    app.add_handler(
-        MessageHandler(
-            anymsg,
-            filters.private
-        ),
-        group=1
-    )
-
-    # Channel detection
-    app.add_handler(
-        MessageHandler(
-            channel_post,
-            filters.channel
-        ),
-        group=2
-    )
 
     # Background tasks
     asyncio.create_task(notify())
@@ -629,6 +566,10 @@ async def main():
 
     await asyncio.Event().wait()
 
+
+# ==============================
+# RUN
+# ==============================
 
 if __name__ == "__main__":
 
