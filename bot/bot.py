@@ -14,7 +14,11 @@ logging.basicConfig(level=logging.INFO)
 
 E = os.environ
 
-SB = E["SUPABASE_URL"] + "/rest/v1"
+# ==============================
+# CONFIGURATION
+# ==============================
+
+SB = E["SUPABASE_URL"].rstrip("/") + "/rest/v1"
 
 H = {
     "apikey": E["SERVICE_KEY"],
@@ -22,29 +26,46 @@ H = {
     "Content-Type": "application/json"
 }
 
-LOG = E["LOG_CHANNEL"]
+LOG = int(E["LOG_CHANNEL"])
 ADMIN = int(E["ADMIN_ID"])
 
 HOURS = 3
 
 app = None
+source_ready = False
+source_lock = asyncio.Lock()
 
+
+# ==============================
+# TIME
+# ==============================
 
 def ts(dt):
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+# ==============================
+# SUPABASE
+# ==============================
+
 async def get(path):
+
     async with aiohttp.ClientSession() as s:
-        async with s.get(SB + path, headers=H) as r:
+
+        async with s.get(
+            SB + path,
+            headers=H
+        ) as r:
+
             r.raise_for_status()
             return await r.json()
 
 
 async def schedule(chat, *ids):
+
     t = ts(
-        datetime.now(timezone.utc) +
-        timedelta(hours=HOURS)
+        datetime.now(timezone.utc)
+        + timedelta(hours=HOURS)
     )
 
     data = [
@@ -57,16 +78,113 @@ async def schedule(chat, *ids):
     ]
 
     async with aiohttp.ClientSession() as s:
+
         async with s.post(
             SB + "/bot_deletes",
             headers=H,
             json=data
         ) as r:
+
             r.raise_for_status()
 
 
-# Channel detection handler
+# ==============================
+# PRIVATE CHANNEL PEER RESOLUTION
+# ==============================
+
+async def ensure_source_peer(c):
+
+    global source_ready
+
+    async with source_lock:
+
+        if source_ready:
+            return True
+
+        print(
+            "RESOLVING SOURCE CHANNEL:",
+            LOG,
+            flush=True
+        )
+
+        # First try existing session cache
+        try:
+
+            await c.resolve_peer(LOG)
+
+            print(
+                "SOURCE PEER FOUND IN SESSION CACHE",
+                flush=True
+            )
+
+            source_ready = True
+            return True
+
+        except Exception as e:
+
+            print(
+                "SESSION CACHE MISS:",
+                repr(e),
+                flush=True
+            )
+
+        # Load peers from Telegram dialogs
+        try:
+
+            found = False
+
+            async for dialog in c.get_dialogs():
+
+                if dialog.chat.id == LOG:
+
+                    found = True
+
+                    print(
+                        "SOURCE CHANNEL FOUND:",
+                        dialog.chat.id,
+                        dialog.chat.title,
+                        flush=True
+                    )
+
+                    break
+
+            if not found:
+
+                print(
+                    "SOURCE CHANNEL NOT FOUND IN DIALOGS",
+                    flush=True
+                )
+
+                return False
+
+            # Resolve after loading dialog
+            await c.resolve_peer(LOG)
+
+            print(
+                "SOURCE PEER RESOLVED SUCCESSFULLY!",
+                flush=True
+            )
+
+            source_ready = True
+            return True
+
+        except Exception as e:
+
+            print(
+                "SOURCE PEER ERROR:",
+                repr(e),
+                flush=True
+            )
+
+            return False
+
+
+# ==============================
+# CHANNEL POST DETECTION
+# ==============================
+
 async def channel_post(c, m):
+
     print(
         "CHANNEL DETECTED:",
         m.chat.id,
@@ -76,20 +194,60 @@ async def channel_post(c, m):
     )
 
     if m.chat.id == LOG:
-        print("LOG CHANNEL VERIFIED!", flush=True)
+
+        print(
+            "LOG CHANNEL VERIFIED!",
+            flush=True
+        )
+
+        global source_ready
+        source_ready = False
+
+        try:
+            await c.resolve_peer(LOG)
+
+            source_ready = True
+
+            print(
+                "CHANNEL PEER UPDATED!",
+                flush=True
+            )
+
+        except Exception as e:
+
+            print(
+                "CHANNEL PEER UPDATE ERROR:",
+                repr(e),
+                flush=True
+            )
+
     else:
-        print("CHANNEL ID DOES NOT MATCH LOG_CHANNEL!", flush=True)
+
+        print(
+            "CHANNEL ID DOES NOT MATCH LOG_CHANNEL!",
+            flush=True
+        )
 
 
-# Start command
+# ==============================
+# START COMMAND
+# ==============================
+
 async def start(c, m):
-    print("START PELAM:", m.text, flush=True)
+
+    print(
+        "START RECEIVED:",
+        m.text,
+        flush=True
+    )
 
     try:
+
         if (
             len(m.command) < 2
             or not m.command[1].startswith("video_")
         ):
+
             return await m.reply(
                 "🔥 Viral Video বটে স্বাগতম! "
                 "ওয়েবসাইট থেকে ভিডিও লিংকে ক্লিক করুন।"
@@ -97,21 +255,46 @@ async def start(c, m):
 
         mid = int(m.command[1][6:])
 
+        # Get video information from Supabase
         r = await get(
-            f"/post_links?tg_msg_id=eq.{mid}&select=posts(type)"
+            f"/post_links?tg_msg_id=eq.{mid}"
+            "&select=posts(type)"
         )
 
-        print("DB REPLY:", r, flush=True)
+        print(
+            "DB REPLY:",
+            r,
+            flush=True
+        )
 
         if not r or not isinstance(r, list):
-            return await m.reply("❌ ভিডিও পাওয়া যায়নি।")
 
-        if not r[0].get("posts"):
-            return await m.reply("❌ ভিডিওর তথ্য পাওয়া যায়নি।")
+            return await m.reply(
+                "❌ ভিডিও পাওয়া যায়নি।"
+            )
 
-        if r[0]["posts"]["type"] == "premium":
+        post = r[0].get("posts")
 
-            u = m.from_user.username or "-"
+        if isinstance(post, list):
+            post = post[0] if post else None
+
+        if not post:
+
+            return await m.reply(
+                "❌ ভিডিওর তথ্য পাওয়া যায়নি।"
+            )
+
+        # Premium verification
+        if post.get("type") == "premium":
+
+            u = m.from_user.username
+
+            if not u:
+
+                return await m.reply(
+                    "🔒 Premium ব্যবহারের জন্য "
+                    "Telegram username সেট করুন।"
+                )
 
             ok = await get(
                 f"/profiles?tg_username=ilike.{u}"
@@ -119,19 +302,73 @@ async def start(c, m):
             )
 
             if not ok or not isinstance(ok, list):
+
                 return await m.reply(
                     "🔒 প্রিমিয়াম! ওয়েবসাইটে "
-                    "রেজিস্ট্রেশনের সময় এই Telegram "
-                    "username দিন এবং অ্যাডমিনের অনুমোদন নিন।"
+                    "রেজিস্ট্রেশন করে অ্যাডমিনের "
+                    "অনুমোদন নিন।"
                 )
 
-        print("COPYING VIDEO FROM:", LOG, mid, flush=True)
+        # Resolve private channel peer
+        ready = await ensure_source_peer(c)
 
-        v = await c.copy_message(
-            m.chat.id,
+        if not ready:
+
+            return await m.reply(
+                "⚠️ ভিডিও সার্ভার প্রস্তুত নয়। "
+                "অ্যাডমিনকে জানান।"
+            )
+
+        print(
+            "CHECKING SOURCE MESSAGE:",
             LOG,
             mid,
+            flush=True
+        )
+
+        # Check source message
+        source_msg = await c.get_messages(
+            LOG,
+            mid
+        )
+
+        if not source_msg or source_msg.empty:
+
+            return await m.reply(
+                "❌ Source Channel-এ ভিডিও পাওয়া যায়নি।"
+            )
+
+        if not source_msg.video and not source_msg.document:
+
+            return await m.reply(
+                "❌ এই Message-এ ভিডিও পাওয়া যায়নি।"
+            )
+
+        print(
+            "SOURCE MESSAGE FOUND:",
+            source_msg.id,
+            flush=True
+        )
+
+        # Copy video
+        print(
+            "COPYING VIDEO FROM:",
+            LOG,
+            mid,
+            flush=True
+        )
+
+        v = await c.copy_message(
+            chat_id=m.chat.id,
+            from_chat_id=LOG,
+            message_id=mid,
             protect_content=True
+        )
+
+        print(
+            "VIDEO SENT:",
+            v.id,
+            flush=True
         )
 
         n = await m.reply(
@@ -140,6 +377,7 @@ async def start(c, m):
             "ওয়েবসাইট থেকে আসুন।"
         )
 
+        # Schedule deletion
         await schedule(
             m.chat.id,
             v.id,
@@ -147,32 +385,58 @@ async def start(c, m):
             m.id
         )
 
+        print(
+            "DELETE SCHEDULED SUCCESSFULLY",
+            flush=True
+        )
+
     except Exception as e:
 
-        print("START ERROR:", repr(e), flush=True)
+        print(
+            "START ERROR:",
+            repr(e),
+            flush=True
+        )
 
         try:
+
             await m.reply(
-                "⚠️ এরর: " + str(e)[:200]
+                "⚠️ ভিডিও পাঠাতে সমস্যা হয়েছে। "
+                "অ্যাডমিনকে জানান।"
             )
+
         except Exception as e2:
-            print("REPLY ERROR:", repr(e2), flush=True)
+
+            print(
+                "REPLY ERROR:",
+                repr(e2),
+                flush=True
+            )
 
 
-# Other private messages
+# ==============================
+# OTHER PRIVATE MESSAGES
+# ==============================
+
 async def anymsg(c, m):
+
     print(
-        "MESSAGE ESECHE:",
+        "PRIVATE MESSAGE RECEIVED:",
         m.text,
         flush=True
     )
 
 
-# Delete expired messages
+# ==============================
+# DELETE EXPIRED MESSAGES
+# ==============================
+
 async def sweeper():
 
     while True:
+
         try:
+
             now = ts(datetime.now(timezone.utc))
 
             rows = await get(
@@ -183,32 +447,57 @@ async def sweeper():
             for d in rows:
 
                 try:
+
                     await app.delete_messages(
-                        d["chat_id"],
-                        d["message_id"]
+                        int(d["chat_id"]),
+                        int(d["message_id"])
+                    )
+
+                    print(
+                        "MESSAGE DELETED:",
+                        d["message_id"],
+                        flush=True
                     )
 
                 except Exception as e:
-                    print("DELETE ERROR:", repr(e))
 
+                    print(
+                        "DELETE ERROR:",
+                        repr(e),
+                        flush=True
+                    )
+
+                # Remove processed database entry
                 async with aiohttp.ClientSession() as s:
+
                     async with s.delete(
                         SB + f"/bot_deletes?id=eq.{d['id']}",
                         headers=H
                     ) as r:
+
                         r.raise_for_status()
 
         except Exception as e:
-            print("SWEEPER ERROR:", repr(e))
+
+            print(
+                "SWEEPER ERROR:",
+                repr(e),
+                flush=True
+            )
 
         await asyncio.sleep(60)
 
 
-# New user notification
+# ==============================
+# NEW USER NOTIFICATION
+# ==============================
+
 async def notify():
 
     while True:
+
         try:
+
             users = await get(
                 "/profiles?notified=eq.false"
                 "&select=id,email,tg_username"
@@ -223,20 +512,30 @@ async def notify():
                 )
 
                 async with aiohttp.ClientSession() as s:
+
                     async with s.patch(
                         SB + f"/profiles?id=eq.{u['id']}",
                         headers=H,
                         json={"notified": True}
                     ) as r:
+
                         r.raise_for_status()
 
         except Exception as e:
-            print("NOTIFY ERROR:", repr(e))
+
+            print(
+                "NOTIFY ERROR:",
+                repr(e),
+                flush=True
+            )
 
         await asyncio.sleep(30)
 
 
-# Main application
+# ==============================
+# MAIN APPLICATION
+# ==============================
+
 async def main():
 
     global app
@@ -248,6 +547,26 @@ async def main():
         bot_token=E["BOT_TOKEN"],
         in_memory=True
     )
+
+    # Start Telegram client
+    await app.start()
+
+    me = await app.get_me()
+
+    print(
+        "BOT CHALU:",
+        me.username,
+        flush=True
+    )
+
+    print(
+        "EXPECTED LOG CHANNEL:",
+        LOG,
+        flush=True
+    )
+
+    # Resolve private source channel
+    await ensure_source_peer(app)
 
     # Private start command
     app.add_handler(
@@ -276,29 +595,15 @@ async def main():
         group=2
     )
 
-    await app.start()
-
-    me = await app.get_me()
-
-    print(
-        "BOT CHALU:",
-        me.username,
-        flush=True
-    )
-
-    print(
-        "EXPECTED LOG CHANNEL:",
-        LOG,
-        flush=True
-    )
-
+    # Background tasks
     asyncio.create_task(notify())
     asyncio.create_task(sweeper())
 
-    # Render HTTP health check
+    # HTTP health server
     w = web.Application()
 
     async def health(request):
+
         return web.Response(
             text="Viral Video Bot is Running",
             status=200
@@ -317,10 +622,14 @@ async def main():
         int(E.get("PORT", 10000))
     ).start()
 
-    print("HTTP HEALTH SERVER STARTED", flush=True)
+    print(
+        "HTTP HEALTH SERVER STARTED",
+        flush=True
+    )
 
     await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
+
     asyncio.run(main())
