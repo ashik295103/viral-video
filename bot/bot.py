@@ -22,7 +22,7 @@ H = {
     "Content-Type": "application/json"
 }
 
-LOG = int(E["LOG_CHANNEL"])
+LOG = E["LOG_CHANNEL"]
 ADMIN = int(E["ADMIN_ID"])
 
 HOURS = 3
