@@ -127,7 +127,23 @@ if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;
 }
 init();
 </script>
-  <script src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
+<script src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
+<script src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
+<div id="abk" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0a14f5;align-items:center;justify-content:center;padding:20px;text-align:center;color:#eee;font-family:system-ui,sans-serif"><div style="max-width:340px;background:#18182b;border:1px solid #b44cff;border-radius:16px;padding:22px"><div style="font-size:44px">🚫</div><h3 style="margin:8px 0">অ্যাড ব্লকার চালু আছে</h3><p style="line-height:1.7;color:#ccd;margin-bottom:16px">এই সাইট বিজ্ঞাপনের আয়ে চলে। অনুগ্রহ করে অ্যাড ব্লকার (বা প্রাইভেট DNS / ব্রাউজারের ব্লকার) বন্ধ করে পেজটি রিলোড করুন।</p><button onclick="location.reload()" style="background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;border-radius:10px;padding:12px 18px;font:inherit;cursor:pointer;width:100%">আমি বন্ধ করেছি, রিলোড করুন</button></div></div>
+<script>
+(function(){
+const AD='https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js';
+function show(){document.getElementById('abk').style.display='flex';document.body.style.overflow='hidden'}
+async function chk(){
+let blocked=false;
+const bait=document.createElement('div');bait.className='adsbox ad-banner ads advert pub_300x250 text-ad';bait.style.cssText='position:absolute;left:-9999px;top:0;width:10px;height:10px';bait.innerHTML='&nbsp;';document.body.appendChild(bait);
+await new Promise(r=>setTimeout(r,300));
+const cs=getComputedStyle(bait);if(!bait.offsetHeight||cs.display==='none'||cs.visibility==='hidden')blocked=true;bait.remove();
+if(!blocked){try{await fetch(AD+'?_='+Date.now(),{mode:'no-cors',cache:'no-store'})}catch(e){blocked=true}}
+if(blocked){try{await fetch(location.href.split('#')[0],{method:'HEAD',cache:'no-store'});show()}catch(e){}}
+}
+window.addEventListener('load',()=>setTimeout(chk,1200));
+})();
+</script>
 </body>
-  <script src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
-</html>
+  </html>
