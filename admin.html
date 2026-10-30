@@ -43,7 +43,7 @@ small{color:#889}.bd{display:inline-block;padding:1px 8px;border-radius:10px;bac
 <script>
 const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i);let P=[];
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const SET=[['সাধারণ',[['ticker','উপরের স্ক্রলিং নোটিশ'],['bot_username','টেলিগ্রাম বটের ইউজারনেম (@ ছাড়া)'],['admin_tg','অ্যাডমিনের টেলিগ্রাম লিংক (https://t.me/sgboss27)'],['success_tg','রেজিস্ট্রেশনের পর যে টেলিগ্রাম লিংক দেখাবে (ফাঁকা থাকলে উপরেরটা)']]],['সোশ্যাল',[['tg_channel','টেলিগ্রাম চ্যানেল লিংক (নিচের Join বাটন)'],['fb','ফেসবুক পেজ লিংক']]],['Adsterra',[['adsterra_link','Smart Link — Watch চাপলে আগে নতুন ট্যাবে খুলবে'],['ad_banner','ব্যানার/নেটিভ কোড #১ → ক্যাটাগরি মেনুর নিচে, পোস্টের উপরে দেখাবে','a'],['ad_native','ব্যানার/নেটিভ কোড #২ → পোস্ট গ্রিডের নিচে, পেজ নম্বরের উপরে দেখাবে','a'],['adsterra_script','গ্লোবাল স্ক্রিপ্ট (Popunder / Social Bar) → পুরো সাইটে চলবে','a']]]];
+const SET=[['সাধারণ',[['ticker','উপরের স্ক্রলিং নোটিশ'],['bot_username','টেলিগ্রাম বটের ইউজারনেম (@ ছাড়া)'],['admin_tg','অ্যাডমিনের টেলিগ্রাম লিংক (https://t.me/sgboss27)'],['success_tg','রেজিস্ট্রেশনের পর যে টেলিগ্রাম লিংক দেখাবে (ফাঁকা থাকলে উপরেরটা)']]],['সোশ্যাল',[['tg_channel','টেলিগ্রাম চ্যানেল লিংক (নিচের Join বাটন)'],['fb','ফেসবুক পেজ লিংক']]],['এড প্লেসমেন্ট (Adsterra)',[['adsterra_link','Smart Link — Watch চাপলে আগে নতুন ট্যাবে খুলবে'],['ad_banner','ব্যানার/নেটিভ কোড #১ → ক্যাটাগরি মেনুর নিচে, পোস্টের উপরে দেখাবে','a'],['ad_native','ব্যানার/নেটিভ কোড #২ → পোস্ট গ্রিডের নিচে, পেজ নম্বরের উপরে দেখাবে','a'],['ad_popunder','পপআন্ডার কোড → পুরো সাইটে চলবে','a'],['ad_socialbar','সোশ্যাল বার কোড → পুরো সাইটে চলবে','a'],['adsterra_script','অন্যান্য গ্লোবাল স্ক্রিপ্ট → পুরো সাইটে চলবে','a']]]];
 const F=SET.flatMap(g=>g[1].map(f=>f[0]));
 function tab(k,b){document.querySelectorAll('.c').forEach(c=>c.classList.toggle('on',c.id==k));document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b))}
 async function up(fid,tid){const f=$(fid).files[0];if(!f)return;const n=Date.now()+'_'+f.name.replace(/[^\w.]/g,'');const{error}=await sb.storage.from('images').upload(n,f);if(error)return alert(error.message);$(tid).value=sb.storage.from('images').getPublicUrl(n).data.publicUrl;prev();alert('✅ আপলোড হয়েছে')}
@@ -51,28 +51,28 @@ function prev(){const v=$('th').value;$('pv').src=v;$('pv').style.display=v?'blo
 async function go(){const{error}=await sb.auth.signInWithPassword({email:$('e').value,password:$('p').value});if(error)return alert(error.message);chk()}
 async function chk(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const{data}=await sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle();if(!data?.is_admin)return alert('এই অ্যাকাউন্ট অ্যাডমিন নয়');$('lg').style.display='none';$('ap').style.display='block';lp();lu();la();ls()}
 async function lp(){const{data}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(200);P=data||[];
- $('s1').textContent=P.length;$('s2').textContent=P.reduce((a,p)=>a+p.views,0);$('s3').textContent=P.reduce((a,p)=>a+p.clicks,0);
- $('pl').innerHTML=P.map((p,i)=>`<div class="row"><img src="${esc(p.thumb)}"><div class="m"><b>${esc(p.title)}</b><span class="bd">${p.category}</span><span class="bd">${p.type}</span><small>👁${p.views} 🖱${p.clicks} 📈${p.impressions}</small></div><div class="a"><button class="s" onclick="openF(${i})">✏️</button><button class="d" onclick="dp(${p.id})">🗑</button></div></div>`).join('')||'<p>কোনো পোস্ট নেই</p>'}
+$('s1').textContent=P.length;$('s2').textContent=P.reduce((a,p)=>a+p.views,0);$('s3').textContent=P.reduce((a,p)=>a+p.clicks,0);
+$('pl').innerHTML=P.map((p,i)=>`<div class="row"><img src="${esc(p.thumb)}"><div class="m"><b>${esc(p.title)}</b><span class="bd">${p.category}</span><span class="bd">${p.type}</span><small>👁${p.views} 🖱${p.clicks} 📈${p.impressions}</small></div><div class="a"><button class="s" onclick="openF(${i})">✏️</button><button class="d" onclick="dp(${p.id})">🗑</button></div></div>`).join('')||'<p>কোনো পোস্ট নেই</p>'}
 async function openF(i){const p=i==null?{}:P[i];$('eid').value=p.id||'';$('ft').textContent=p.id?'পোস্ট এডিট':'নতুন পোস্ট';
- $('pt').value=p.title||'';$('pd').value=p.descr||'';$('pg').value=p.tags||'';$('pc').value=p.category||'video';$('py').value=p.type||'normal';$('th').value=p.thumb||'';$('dl').value='';$('tm').value='';prev();
- $('pf').style.display='block';$('pf').scrollIntoView();
- if(p.id){const{data}=await sb.from('post_links').select('*').eq('post_id',p.id).maybeSingle();$('dl').value=data?.direct_link||'';$('tm').value=data?.tg_msg_id||''}}
+$('pt').value=p.title||'';$('pd').value=p.descr||'';$('pg').value=p.tags||'';$('pc').value=p.category||'video';$('py').value=p.type||'normal';$('th').value=p.thumb||'';$('dl').value='';$('tm').value='';prev();
+$('pf').style.display='block';$('pf').scrollIntoView();
+if(p.id){const{data}=await sb.from('post_links').select('*').eq('post_id',p.id).maybeSingle();$('dl').value=data?.direct_link||'';$('tm').value=data?.tg_msg_id||''}}
 async function savePost(){if(!$('pt').value)return alert('টাইটেল দিন');if(!$('dl').value&&!$('tm').value)return alert('Direct Link অথবা Telegram Message ID দিন');
- const o={title:$('pt').value,descr:$('pd').value,tags:$('pg').value,category:$('pc').value,type:$('py').value,thumb:$('th').value};let id=$('eid').value;
- if(id){const r=await sb.from('posts').update(o).eq('id',id);if(r.error)return alert(r.error.message)}else{const r=await sb.from('posts').insert(o).select().single();if(r.error)return alert(r.error.message);id=r.data.id}
- const r2=await sb.from('post_links').upsert({post_id:id,direct_link:$('dl').value||null,tg_msg_id:$('tm').value||null});if(r2.error)return alert(r2.error.message);
- $('pf').style.display='none';lp();alert('✅ Saved')}
+const o={title:$('pt').value,descr:$('pd').value,tags:$('pg').value,category:$('pc').value,type:$('py').value,thumb:$('th').value};let id=$('eid').value;
+if(id){const r=await sb.from('posts').update(o).eq('id',id);if(r.error)return alert(r.error.message)}else{const r=await sb.from('posts').insert(o).select().single();if(r.error)return alert(r.error.message);id=r.data.id}
+const r2=await sb.from('post_links').upsert({post_id:id,direct_link:$('dl').value||null,tg_msg_id:$('tm').value||null});if(r2.error)return alert(r2.error.message);
+$('pf').style.display='none';lp();alert('✅ Saved')}
 async function dp(id){if(confirm('পোস্ট ডিলিট করবেন?')){await sb.from('posts').delete().eq('id',id);lp()}}
 async function lu(){const{data}=await sb.from('profiles').select('*').order('created_at',{ascending:false});const U=data||[];
- const g=(s,t)=>{const l=U.filter(u=>u.status==s);return `<div class="card"><h4>${t} (${l.length})</h4>${l.map(u=>`<div class="row"><div class="m"><b>${esc(u.email)}</b><small>@${esc(u.tg_username||'-')}</small></div><div class="a">${s!='approved'?`<button class="ok" onclick="us('${u.id}','approved')">Approve</button>`:`<button class="w" onclick="us('${u.id}','pending')">Revoke</button>`}${s!='disabled'?`<button class="s" onclick="us('${u.id}','disabled')">Disable</button>`:''}<button class="d" onclick="du('${u.id}')">Delete</button></div></div>`).join('')||'<small>কেউ নেই</small>'}</div>`};
- $('ul').innerHTML=g('pending','⏳ অনুমোদনের অপেক্ষায়')+g('approved','✅ প্রিমিয়াম ইউজার')+g('disabled','⛔ বন্ধ করা')}
+const g=(s,t)=>{const l=U.filter(u=>u.status==s);return `<div class="card"><h4>${t} (${l.length})</h4>${l.map(u=>`<div class="row"><div class="m"><b>${esc(u.email)}</b><small>@${esc(u.tg_username||'-')}</small></div><div class="a">${s!='approved'?`<button class="ok" onclick="us('${u.id}','approved')">Approve</button>`:`<button class="w" onclick="us('${u.id}','pending')">Revoke</button>`}${s!='disabled'?`<button class="s" onclick="us('${u.id}','disabled')">Disable</button>`:''}<button class="d" onclick="du('${u.id}')">Delete</button></div></div>`).join('')||'<small>কেউ নেই</small>'}</div>`};
+$('ul').innerHTML=g('pending','⏳ অনুমোদনের অপেক্ষায়')+g('approved','✅ প্রিমিয়াম ইউজার')+g('disabled','⛔ বন্ধ করা')}
 async function us(id,s){await sb.from('profiles').update({status:s}).eq('id',id);lu()}
 async function du(id){if(confirm('অ্যাকাউন্ট পুরোপুরি ডিলিট হবে। নিশ্চিত?')){const{error}=await sb.rpc('delete_user',{uid:id});if(error)alert(error.message);lu()}}
 async function la(){const{data}=await sb.from('ads').select('*').order('id',{ascending:false});$('al').innerHTML=(data||[]).map(a=>`<div class="row"><img src="${esc(a.image_url)}"><div class="m"><b>${a.kind=='popup'?'পপ-আপ':'ব্যানার'}</b><small>🖱 ${a.clicks} ${a.expires_at?'• শেষ: '+new Date(a.expires_at).toLocaleString():''}</small></div><button class="d" onclick="da(${a.id})">🗑</button></div>`).join('')||'<p>কোনো বিজ্ঞাপন নেই</p>'}
 async function saveAd(){if(!$('ai').value||!$('alk').value)return alert('ছবি ও লিংক দিন');const{error}=await sb.from('ads').insert({kind:$('ak').value,image_url:$('ai').value,link:$('alk').value,expires_at:$('ae').value?new Date($('ae').value).toISOString():null});if(error)return alert(error.message);$('ai').value=$('alk').value='';la()}
 async function da(id){await sb.from('ads').delete().eq('id',id);la()}
 async function ls(){const{data}=await sb.from('settings').select('*').eq('id',1).single();
- $('sf').innerHTML=SET.map(([t,fs])=>`<div class="card"><h3>${t}</h3>${fs.map(([k,l,ty])=>`<label>${l}</label>${ty=='a'?`<textarea id="s_${k}" rows="4"></textarea>`:`<input id="s_${k}">`}`).join('')}</div>`).join('');
- F.forEach(k=>$('s_'+k).value=data?.[k]||'')}
+$('sf').innerHTML=SET.map(([t,fs])=>`<div class="card"><h3>${t}</h3>${fs.map(([k,l,ty])=>`<label>${l}</label>${ty=='a'?`<textarea id="s_${k}" rows="4"></textarea>`:`<input id="s_${k}">`}`).join('')}</div>`).join('');
+F.forEach(k=>$('s_'+k).value=data?.[k]||'')}
 async function saveSet(){const o={};F.forEach(k=>o[k]=$('s_'+k).value);const{error}=await sb.from('settings').update(o).eq('id',1);alert(error?error.message:'✅ Saved')}
 chk()</script></body></html>
