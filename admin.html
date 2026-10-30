@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+<style>body{background:#0a0a14;color:#eee;font-family:system-ui;padding:12px}input,select,textarea{width:100%;padding:9px;margin:4px 0;background:#18182b;color:#eee;border:1px solid #444;border-radius:8px}button{background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;padding:8px 12px;border-radius:8px;margin:2px}.t{display:flex;gap:4px;overflow-x:auto}.r{background:#18182b;padding:8px;border-radius:8px;margin:6px 0;font-size:13px}.c{display:none}.c.on{display:block}small{color:#9ab}</style></head><body>
+<div id="lg"><h2>Admin Login</h2><input id="e" placeholder="Email"><input id="p" type="password" placeholder="Password"><button onclick="go()">Login</button></div>
+<div id="ap" style="display:none"><div class="t" id="tb"></div>
+<div class="c on" id="posts"><h3>পোস্ট</h3><input id="pt" placeholder="Title"><textarea id="pd" placeholder="Description"></textarea><input id="pg" placeholder="Tags (comma)"><select id="pc"><option>video</option><option>photo</option><option>story</option></select><select id="py"><option>normal</option><option>viral</option><option>premium</option></select>
+<small>📷 থাম্বনেইল: ফাইল আপলোড করুন অথবা URL দিন</small><input type="file" id="thf" accept="image/*" onchange="up('thf','th')"><input id="th" placeholder="Thumbnail URL"><input id="dl" placeholder="Direct Link (অথবা নিচে TG Message ID)"><input id="tm" type="number" placeholder="Telegram Message ID (যেমন 45)"><input type="hidden" id="eid"><button onclick="savePost()">Save</button><button onclick="clr()">Clear</button><div id="pl"></div></div>
+<div class="c" id="users"><h3>ইউজার</h3><div id="ul"></div></div>
+<div class="c" id="adsx"><h3>বিজ্ঞাপন</h3><select id="ak"><option>banner</option><option>popup</option></select><small>📷 বিজ্ঞাপনের ছবি আপলোড করুন বা URL দিন</small><input type="file" id="aif" accept="image/*" onchange="up('aif','ai')"><input id="ai" placeholder="Image URL"><input id="alk" placeholder="Click Link"><input id="ae" type="datetime-local"><button onclick="saveAd()">Add</button><div id="al"></div></div>
+<div class="c" id="set"><h3>সেটিংস</h3><div id="sf"></div><button onclick="saveSet()">Save</button></div></div>
+<script>
+const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i);let P=[];const F=['ticker','bot_username','admin_tg','fb','tg_channel','success_tg','adsterra_link','adsterra_script'];
+async function up(fid,tid){const f=$(fid).files[0];if(!f)return;const n=Date.now()+'_'+f.name.replace(/[^\w.]/g,'');const{error}=await sb.storage.from('images').upload(n,f);if(error)return alert(error.message);$(tid).value=sb.storage.from('images').getPublicUrl(n).data.publicUrl;alert('✅ আপলোড হয়েছে')}
+async function go(){const{error}=await sb.auth.signInWithPassword({email:$('e').value,password:$('p').value});if(error)return alert(error.message);chk()}
+async function chk(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const{data}=await sb.from('profiles').select('is_admin').eq('id',session.user.id).single();if(!data?.is_admin)return alert('অ্যাডমিন নন');$('lg').style.display='none';$('ap').style.display='block';
+ $('tb').innerHTML=[['posts','পোস্ট'],['users','ইউজার'],['adsx','Ads'],['set','Settings']].map(([k,l])=>`<button onclick="tab('${k}')">${l}</button>`).join('');lp();lu();la();ls()}
+function tab(k){document.querySelectorAll('.c').forEach(c=>c.classList.toggle('on',c.id==k))}
+function clr(){['eid','pt','pd','pg','th','dl','tm'].forEach(i=>$(i).value='')}
+async function lp(){const{data}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);P=data||[];$('pl').innerHTML=P.map((p,i)=>`<div class="r">${p.title.replace(/</g,'&lt;')} [${p.category}/${p.type}] 👁${p.views} 🖱${p.clicks} 📈${p.impressions}<br><button onclick="ed(${i})">Edit</button><button onclick="dp(${p.id})">Delete</button></div>`).join('')}
+async function ed(i){const p=P[i];$('eid').value=p.id;$('pt').value=p.title;$('pd').value=p.descr||'';$('pg').value=p.tags||'';$('pc').value=p.category;$('py').value=p.type;$('th').value=p.thumb||'';const{data}=await sb.from('post_links').select('*').eq('post_id',p.id).maybeSingle();$('dl').value=data?.direct_link||'';$('tm').value=data?.tg_msg_id||'';scrollTo(0,0)}
+async function savePost(){const o={title:$('pt').value,descr:$('pd').value,tags:$('pg').value,category:$('pc').value,type:$('py').value,thumb:$('th').value};let id=$('eid').value;
+ if(id){const r=await sb.from('posts').update(o).eq('id',id);if(r.error)return alert(r.error.message)}else{const r=await sb.from('posts').insert(o).select().single();if(r.error)return alert(r.error.message);id=r.data.id}
+ const r2=await sb.from('post_links').upsert({post_id:id,direct_link:$('dl').value||null,tg_msg_id:$('tm').value||null});if(r2.error)return alert(r2.error.message);clr();lp();alert('✅ Saved')}
+async function dp(id){if(confirm('Delete?')){await sb.from('posts').delete().eq('id',id);lp()}}
+async function lu(){const{data}=await sb.from('profiles').select('*').order('created_at',{ascending:false});const g=s=>data.filter(u=>u.status==s).map(u=>`<div class="r">${u.email} @${u.tg_username||''}<br><button onclick="us('${u.id}','approved')">Approve</button><button onclick="us('${u.id}','pending')">Revoke</button><button onclick="us('${u.id}','disabled')">Disable</button><button onclick="du('${u.id}')">Delete</button></div>`).join('')||'—';
+ $('ul').innerHTML='<h4>⏳ Pending</h4>'+g('pending')+'<h4>✅ Premium</h4>'+g('approved')+'<h4>⛔ Disabled</h4>'+g('disabled')}
+async function us(id,s){await sb.from('profiles').update({status:s}).eq('id',id);lu()}
+async function du(id){if(confirm('অ্যাকাউন্ট পুরোপুরি ডিলিট হবে। নিশ্চিত?')){const{error}=await sb.rpc('delete_user',{uid:id});if(error)alert(error.message);lu()}}
+async function la(){const{data}=await sb.from('ads').select('*');$('al').innerHTML=data.map(a=>`<div class="r">${a.kind} • clicks ${a.clicks} • ${a.link}<br><button onclick="da(${a.id})">Delete</button></div>`).join('')}
+async function saveAd(){await sb.from('ads').insert({kind:$('ak').value,image_url:$('ai').value,link:$('alk').value,expires_at:$('ae').value?new Date($('ae').value).toISOString():null});la()}
+async function da(id){await sb.from('ads').delete().eq('id',id);la()}
+async function ls(){const{data}=await sb.from('settings').select('*').eq('id',1).single();$('sf').innerHTML=F.map(f=>`<label>${f}</label><textarea id="s_${f}" rows="2"></textarea>`).join('');F.forEach(f=>$('s_'+f).value=data[f]||'')}
+async function saveSet(){const o={};F.forEach(f=>o[f]=$('s_'+f).value);await sb.from('settings').update(o).eq('id',1);alert('Saved')}
+chk()</script></body></html>
