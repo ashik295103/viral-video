@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Viral Video</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<style>
+:root{--bg:#0a0a14;--c:#18182b;--h:#12122a;--bd:#2a2a4a;--g:#00e5ff;--p:#b44cff;--t:#eee}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--t);font-family:system-ui,sans-serif;font-size:14px;padding-bottom:70px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--h);border-bottom:1px solid var(--bd)}
+header a{color:var(--t);text-decoration:none;font-weight:bold;font-size:17px}
+.wrap{max-width:820px;margin:0 auto;padding:12px}
+.panel{background:var(--c);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.hero{width:100%;max-height:480px;aspect-ratio:16/9;object-fit:contain;background:#05050a;display:block}
+.body{padding:16px}
+h1{font-size:21px;line-height:1.4;margin:6px 0 12px}
+.bd{display:inline-block;padding:3px 10px;border-radius:10px;background:var(--bd);font-size:12px;margin:0 4px 6px 0;color:#bbc}
+.desc{white-space:pre-wrap;line-height:1.8;color:#ddd;overflow-wrap:anywhere;margin:12px 0 16px}
+.meta{color:#99a;font-size:13px}
+.b{background:linear-gradient(135deg,var(--p),var(--g));border:0;color:#fff;border-radius:10px;padding:13px 20px;font:inherit;font-size:16px;cursor:pointer;width:100%}
+.b.s{background:#29243a;border:1px solid #51436b}
+.sh{margin-top:18px;padding-top:14px;border-top:1px solid var(--bd)}
+.sh h4{margin-bottom:8px;font-size:14px}
+.lk{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--bd);border-radius:10px;padding:8px 10px;margin-bottom:10px}
+.lk span{flex:1;color:var(--g);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adbox{margin:12px 0;text-align:center;overflow:hidden}
+.adbox:empty{display:none}
+.ov{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:9;padding:16px}
+.ov.on{display:flex}
+.mb{background:var(--c);border:1px solid var(--p);border-radius:16px;padding:20px;max-width:360px;width:100%;position:relative}
+.mb input{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:1px solid #333;background:var(--bg);color:var(--t)}
+.mb .b{width:auto;padding:9px 14px;font-size:13px;margin:4px 3px 0 0}
+.x{position:absolute;right:10px;top:6px;background:0;border:0;color:#fff;font-size:22px}
+.mb a{color:var(--g)}
+@media(max-width:420px){h1{font-size:18px}.body{padding:12px}}
+</style>
+</head>
+<body>
+<header><a href="index.html">🔥 Viral Video</a><a href="index.html" style="font-size:14px;font-weight:normal">← হোম</a></header>
+<div class="wrap">
+<div class="adbox" id="adb"></div>
+<div id="d"><p style="text-align:center;padding:35px">লোড হচ্ছে...</p></div>
+<div class="adbox" id="adn"></div>
+</div>
+<div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
+<script>
+const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
+let S={},P=null,prof=null;
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+const tgl=()=>{const a=S.success_tg||S.admin_tg||'sgboss27';return /^http/.test(a)?a:'https://t.me/'+a.replace('@','')};
+function inj(el,html){const d=document.createElement('div');d.innerHTML=html;d.querySelectorAll('script').forEach(o=>{const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;o.replaceWith(n)});el.appendChild(d)}
+function showForm(){$('lt').textContent='প্রিমিয়াম কনটেন্টের জন্য অ্যাকাউন্ট করুন এবং সাবস্ক্রিপশনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।';$('fm').style.display='block';$('lock').classList.add('on')}
+function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" rel="noopener" href="${esc(tgl())}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
+// ছোট শেয়ার লিংক: ওয়েবসাইট/post.html?v=ID
+function shareUrl(id){return location.origin+location.pathname.replace(/[^\/]*$/,'')+'post.html?v='+encodeURIComponent(id)}
+async function init(){
+const id=new URLSearchParams(location.search).get('v');
+const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};
+['adsterra_script','ad_popunder','ad_socialbar'].forEach(k=>{if(S[k])inj(document.body,S[k])});
+if(S.ad_banner)inj($('adb'),S.ad_banner);
+if(S.ad_native)inj($('adn'),S.ad_native);
+const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;
+if(!id||!/^\d+$/.test(id))return nf();
+const{data:p,error}=await sb.from('posts').select('*').eq('id',id).maybeSingle();
+if(error||!p)return nf();
+P=p;document.title=(p.title||'Viral Video')+' | Viral Video';
+const u=shareUrl(p.id),vid=p.category==='video';
+$('d').innerHTML=`<div class="panel">
+${p.thumb?`<img class="hero" src="${esc(p.thumb)}" alt="${esc(p.title)}">`:''}
+<div class="body">
+<h1>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h1>
+<div><span class="bd">🏷️ ${esc(p.category||'')}</span><span class="bd">${esc(p.type||'')}</span><span class="bd">📅 ${esc(new Date(p.created_at).toLocaleDateString('bn-BD'))}</span><span class="bd">👁 ${Number(p.views||0)}</span><span class="bd">⬇ ${Number(p.clicks||0)}</span></div>
+<div class="desc">${esc(p.descr||'এই কনটেন্টের কোনো বিবরণ দেওয়া হয়নি।')}</div>
+${p.tags?`<div class="meta" style="margin-bottom:16px">ট্যাগ: ${esc(p.tags)}</div>`:''}
+<button class="b" onclick="dl()">${vid?'▶ Watch':'⬇️ Download'}</button>
+<div class="sh"><h4>🔗 শেয়ার করুন</h4>
+<div class="lk"><span>${esc(u.replace(/^https?:\/\//,''))}</span></div>
+<button class="b s" onclick="share()">🔗 Share</button></div>
+</div></div>`;
+}
+function nf(){$('d').innerHTML='<div class="panel body"><p>দুঃখিত, এই কনটেন্টটি পাওয়া যায়নি।</p><br><a href="index.html"><button class="b s">← হোমে ফিরুন</button></a></div>'}
+async function share(){
+const u=shareUrl(P.id);
+try{if(navigator.share)await navigator.share({title:P.title,url:u});else{await navigator.clipboard.writeText(u);alert('শেয়ার লিংক কপি হয়েছে।')}}
+catch(e){if(e.name!=='AbortError')prompt('এই লিংকটি কপি করুন:',u)}
+}
+async function dl(){
+if(S.adsterra_link)window.open(S.adsterra_link,'_blank','noopener');
+const{data,error}=await sb.rpc('get_link',{pid:P.id});
+if(error){if(/disabled/.test(error.message))return alert('আপনার অ্যাকাউন্ট বন্ধ করা হয়েছে।');return prof?showSub():showForm()}
+if(data?.tg)location.href=`https://t.me/${(S.bot_username||'').replace('@','')}?start=video_${data.tg}`;
+else if(data?.direct)location.href=data.direct;
+else alert('এই কনটেন্টের ডাউনলোড লিংক এখনো যুক্ত করা হয়নি।');
+}
+async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')}}});if(error)return alert(error.message);const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;showSub()}
+async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value});if(error)return alert(error.message);const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;cl('lock')}
+init();
+</script>
+<script src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
+<script src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
+</body>
+</html>
