@@ -51,11 +51,14 @@ const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i
 let S={},P=null,prof=null;
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const tgl=()=>{const a=S.success_tg||S.admin_tg||'sgboss27';return /^http/.test(a)?a:'https://t.me/'+a.replace('@','')};
-function inj(el,html){const d=document.createElement('div');d.innerHTML=html;d.querySelectorAll('script').forEach(o=>{const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;o.replaceWith(n)});el.appendChild(d)}
+let Q=Promise.resolve();
+function inj(el,html){Q=Q.then(async()=>{const d=document.createElement('div');d.innerHTML=html;const sc=[...d.querySelectorAll('script')];el.appendChild(d);for(const o of sc){const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;await new Promise(r=>{if(n.src){n.onload=n.onerror=r}o.replaceWith(n);if(!n.src)r()})}}).catch(()=>{})}
 function showForm(){$('lt').textContent='প্রিমিয়াম কনটেন্টের জন্য অ্যাকাউন্ট করুন এবং সাবস্ক্রিপশনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।';$('fm').style.display='block';$('lock').classList.add('on')}
 function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" rel="noopener" href="${esc(tgl())}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
 // ছোট শেয়ার লিংক: ওয়েবসাইট/post.html?v=ID
 function shareUrl(id){return location.origin+location.pathname.replace(/[^\/]*$/,'')+'post.html?v='+encodeURIComponent(id)}
+function splitDesc(t){const m=t.length/2;let best=-1,bd=1e9;for(const re of [/\n/g,/[।.?!]\s/g]){let x;while((x=re.exec(t))){const i=x.index+x[0].length,dd=Math.abs(i-m);if(dd<bd){bd=dd;best=i}}if(best>0)break}return best>0&&best<t.length-1?[t.slice(0,best).replace(/\s+$/,''),t.slice(best).replace(/^\s+/,'')]:[t,'']}
+function descBlock(t){t=(t||'').trim();if(!t)return '<div class="desc">এই কনটেন্টের কোনো বিবরণ দেওয়া হয়নি।</div>';const[a,b]=splitDesc(t);return `<div class="desc">${esc(a)}</div><div class="adbox" id="adm"></div>`+(b?`<div class="desc">${esc(b)}</div>`:'')}
 async function init(){
 const id=new URLSearchParams(location.search).get('v');
 const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};
@@ -73,13 +76,14 @@ ${p.thumb?`<img class="hero" src="${esc(p.thumb)}" alt="${esc(p.title)}">`:''}
 <div class="body">
 <h1>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h1>
 <div><span class="bd">🏷️ ${esc(p.category||'')}</span><span class="bd">${esc(p.type||'')}</span><span class="bd">📅 ${esc(new Date(p.created_at).toLocaleDateString('bn-BD'))}</span><span class="bd">👁 ${Number(p.views||0)}</span><span class="bd">⬇ ${Number(p.clicks||0)}</span></div>
-<div class="desc">${esc(p.descr||'এই কনটেন্টের কোনো বিবরণ দেওয়া হয়নি।')}</div>
+${descBlock(p.descr)}
 ${p.tags?`<div class="meta" style="margin-bottom:16px">ট্যাগ: ${esc(p.tags)}</div>`:''}
 <button class="b" onclick="dl()">${vid?'▶ Watch':'⬇️ Download'}</button>
 <div class="sh"><h4>🔗 শেয়ার করুন</h4>
 <div class="lk"><span>${esc(u.replace(/^https?:\/\//,''))}</span></div>
 <button class="b s" onclick="share()">🔗 Share</button></div>
 </div></div>`;
+if(S.ad_post_mid&&$('adm'))inj($('adm'),S.ad_post_mid);
 }
 function nf(){$('d').innerHTML='<div class="panel body"><p>দুঃখিত, এই কনটেন্টটি পাওয়া যায়নি।</p><br><a href="index.html"><button class="b s">← হোমে ফিরুন</button></a></div>'}
 async function share(){
@@ -101,7 +105,7 @@ init();
 </script>
 <script src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
 <script src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
-<div id="abk" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0a14f5;align-items:center;justify-content:center;padding:20px;text-align:center;color:#eee;font-family:system-ui,sans-serif"><div style="max-width:340px;background:#18182b;border:1px solid #b44cff;border-radius:16px;padding:22px"><div style="font-size:44px">🚫</div><h3 style="margin:8px 0">অ্যাড ব্লকার চালু আছে</h3><p style="line-height:1.7;color:#ccd;margin-bottom:16px">এই সাইট বিজ্ঞাপনের আয়ে চলে। অনুগ্রহ করে অ্যাড ব্লকার (বা প্রাইভেট DNS / ব্রাউজারের ব্লকার) বন্ধ করে পেজটি রিলোড করুন।</p><button onclick="location.reload()" style="background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;border-radius:10px;padding:12px 18px;font:inherit;cursor:pointer;width:100%">আমি বন্ধ করেছি, রিলোড করুন</button></div></div>
+<div id="abk" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0a14f5;align-items:center;justify-content:center;padding:20px;text-align:center;color:#eee;font-family:system-ui,sans-serif"><div style="max-width:340px;background:#18182b;border:1px solid #b44cff;border-radius:16px;padding:22px"><div style="font-size:44px">🕵️</div><p style="font-size:17px;font-weight:bold;line-height:1.6;color:#00e5ff;margin:8px 0 14px">ওহো! অ্যাড ব্লকার নিয়ে ঢুকেছো? 😏 ধরে ফেলেছি ভাই, আমার চোখ ফাঁকি দেওয়া এত সোজা না! 🤭</p><h3 style="margin:8px 0">🚫 অ্যাড ব্লকার চালু আছে</h3><p style="line-height:1.7;color:#ccd;margin-bottom:16px">এই সাইট বিজ্ঞাপনের আয়ে চলে। অনুগ্রহ করে অ্যাড ব্লকার (বা প্রাইভেট DNS / ব্রাউজারের ব্লকার) বন্ধ করে পেজটি রিলোড করুন।</p><button onclick="location.reload()" style="background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;border-radius:10px;padding:12px 18px;font:inherit;cursor:pointer;width:100%">আমি বন্ধ করেছি, রিলোড করুন</button></div></div>
 <script>
 (function(){
 const AD='https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js';
