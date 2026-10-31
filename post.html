@@ -36,6 +36,7 @@ h1{font-size:21px;line-height:1.4;margin:6px 0 12px}
 .x{position:absolute;right:10px;top:6px;background:0;border:0;color:#fff;font-size:22px}
 .mb a{color:var(--g)}
 @media(max-width:420px){h1{font-size:18px}.body{padding:12px}}
+.fl{max-width:980px;margin:18px auto 0;padding:16px 12px;border-top:1px solid var(--bd);text-align:center;color:#889;font-size:12px}.fl a{color:#aab;text-decoration:none;display:inline-block;margin:4px 8px;font-size:13px}.fl a:hover{color:var(--g)}.fl p{margin-top:8px;line-height:1.6}
 </style>
 </head>
 <body>
@@ -45,6 +46,7 @@ h1{font-size:21px;line-height:1.4;margin:6px 0 12px}
 <div id="d"><p style="text-align:center;padding:35px">লোড হচ্ছে...</p></div>
 <div class="adbox" id="adn"></div>
 </div>
+<footer class="fl"><div><a href="info.html?p=about">আমাদের সম্পর্কে</a><a href="info.html?p=contact">যোগাযোগ</a><a href="info.html?p=privacy">প্রাইভেসি পলিসি</a><a href="info.html?p=terms">শর্তাবলী</a><a href="info.html?p=disclaimer">দাবিত্যাগ</a><a href="info.html?p=dmca">DMCA</a><a href="info.html?p=cookie">কুকি পলিসি</a></div><p>© 2026 Viral Video. সর্বস্বত্ব সংরক্ষিত।<br>এই সাইট ১৮+ ব্যবহারকারীদের জন্য। ⚠️18+Restricted🚫</p></footer>
 <div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
 <script>
 const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
