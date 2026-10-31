@@ -33,14 +33,14 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 #bn img{width:100%;display:block}
 .sec{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:12px 0}
 .sec h2{font-size:15px;margin-bottom:10px}
-#gr{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+#gr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .cd{background:#0e0e20;border:1px solid var(--bd);border-radius:10px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
 .cd:hover,.cd:focus{border-color:var(--p);outline:0}
 .cd img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#000}
 .cd .i{padding:7px;display:flex;flex-direction:column;flex:1}
-.cd h3{font-size:12px;line-height:1.35;height:32px;overflow:hidden}
+.cd h3{font-size:13px;line-height:1.4;height:36px;overflow:hidden}
 .cd small{color:#889;display:block;margin:4px 0;font-size:11px}
-.b{background:linear-gradient(135deg,var(--p),var(--g));border:0;color:#fff;border-radius:8px;padding:7px 6px;margin-top:auto;font:inherit;font-size:12px;cursor:pointer;width:100%}
+.b{background:linear-gradient(135deg,var(--p),var(--g));border:0;color:#fff;border-radius:8px;padding:9px 6px;margin-top:auto;font:inherit;font-size:13px;cursor:pointer;width:100%}
 #pg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;padding:12px 0}
 #pg button{background:var(--c);color:var(--t);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font:inherit}
 #pg .on{background:var(--p);border:0}
@@ -54,7 +54,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 .mb .b{width:auto;padding:9px 14px;font-size:13px;margin:4px 3px 0 0}
 .x{position:absolute;right:10px;top:6px;background:0;border:0;color:#fff;font-size:22px}
 .mb a{color:var(--g)}
-@media(max-width:420px){.cd h3{font-size:11px;height:30px}.cd .b{font-size:11px}#gr{gap:6px}}
+@media(max-width:420px){#gr{gap:8px}}
 </style>
 </head>
 <body>
@@ -75,7 +75,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 <script>
 const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
 let S={},page=1,cat='home',q='',prof=null;
-const PER=6;
+const PER=10;
 const NV=[['home','হোম','🏠'],['video','ভিডিও','🎬'],['photo','ফটো','🖼️'],['story','গল্প','📖'],['viral','ভাইরাল','🔥'],['premium','প্রিমিয়াম','👑']];
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function ago(d){const s=(Date.now()-new Date(d))/1000,u=[[31536e3,'year'],[2592e3,'month'],[86400,'day'],[3600,'hour'],[60,'minute']];for(const[n,l]of u)if(s>=n){const v=Math.floor(s/n);return v+' '+l+(v>1?'s':'')+' ago'}return 'just now'}
@@ -110,11 +110,13 @@ else q.split(/[\s,#]+/).map(w=>w.replace(/[%*(),.:"'\\_]/g,'')).filter(Boolean).
 const{data,count}=await r;
 $('gr').innerHTML=(data||[]).map(p=>`<div class="cd" role="button" tabindex="0" onclick="go(${Number(p.id)})" onkeydown="if(event.key==='Enter'){go(${Number(p.id)})}">
 ${p.thumb?`<img src="${esc(p.thumb)}" loading="lazy" alt="${esc(p.title)}">`:''}
-<div class="i"><h3>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h3><small>${ago(p.created_at)} • 👁 ${Number(p.views||0)}</small><button class="b" onclick="event.stopPropagation();go(${Number(p.id)})">${p.category==='video'?'▶ Watch':'⬇ Download'}</button></div></div>`).join('')||'<p style="grid-column:1/4;text-align:center;color:#889">কিছু নেই</p>';
+<div class="i"><h3>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h3><small>${ago(p.created_at)} • 👁 ${Number(p.views||0)}</small><button class="b" onclick="event.stopPropagation();go(${Number(p.id)})">${p.category==='video'?'▶ Watch':'⬇ Download'}</button></div></div>`).join('')||'<p style="grid-column:1/3;text-align:center;color:#889">কিছু নেই</p>';
 if(data?.length)sb.rpc('imp',{ids:data.map(p=>p.id)});
 const n=Math.ceil((count||0)/PER);let h='';
-for(let i=1;i<=Math.min(n,5);i++)h+=`<button class="${i===page?'on':''}" onclick="page=${i};load();scrollTo(0,0)">${i}</button>`;
-if(page<n)h+=`<button onclick="page++;load();scrollTo(0,0)">Next</button>`;
+const go2=i=>`onclick="page=${i};load();scrollTo(0,0)"`;
+if(page>1)h+=`<button ${go2(page-1)}>« Prev</button>`;
+for(let i=Math.max(1,page-2);i<=Math.min(n,Math.max(1,page-2)+4);i++)h+=`<button class="${i===page?'on':''}" ${go2(i)}>${i}</button>`;
+if(page<n)h+=`<button ${go2(page+1)}>Next »</button>`;
 $('pg').innerHTML=h;
 }
 async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')}}});if(error)return alert(error.message);await me();showSub()}
