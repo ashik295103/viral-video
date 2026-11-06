@@ -6,6 +6,7 @@
 <title>Viral Video</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
+<script src="maint.js"></script>
 <style>
 :root{--bg:#0a0a14;--c:#18182b;--h:#12122a;--bd:#2a2a4a;--g:#00e5ff;--p:#b44cff;--t:#eee}
 *{box-sizing:border-box;margin:0}
@@ -59,7 +60,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 </style>
 </head>
 <body>
-<header><b>🔥 Viral Video</b><button class="b" id="au" style="width:auto;padding:8px 14px"></button></header>
+<header><b>🔥 Viral Video</b><div style="display:flex;gap:6px"><button class="b" id="lk" style="width:auto;padding:8px 12px;display:none" onclick="tgLink()">🔗 Telegram</button><button class="b" id="au" style="width:auto;padding:8px 14px"></button></div></header>
 <div class="tk"><span id="tk"></span></div>
 <div class="wrap"><input id="q" placeholder="🔍 টাইটেল বা ট্যাগ লিখে সার্চ করুন..." autocomplete="off"></div>
 <nav id="nv"></nav>
@@ -72,7 +73,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 </div>
 <footer class="fl"><div><a href="info.html?p=about">আমাদের সম্পর্কে</a><a href="info.html?p=contact">যোগাযোগ</a><a href="info.html?p=privacy">প্রাইভেসি পলিসি</a><a href="info.html?p=terms">শর্তাবলী</a><a href="info.html?p=disclaimer">দাবিত্যাগ</a><a href="info.html?p=dmca">DMCA</a><a href="info.html?p=cookie">কুকি পলিসি</a></div><p>© 2026 Viral Video. সর্বস্বত্ব সংরক্ষিত।<br>এই সাইট ১৮+ ব্যবহারকারীদের জন্য। ⚠️18+ Restricted 🚫</p></footer>
 <div class="ft"><a id="tgb" target="_blank" rel="noopener">📢 Telegram এ জয়েন করুন</a><a id="fbb" class="fb" target="_blank" rel="noopener" style="display:none">Facebook</a></div>
-<div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
+<div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><div id="cf" style="margin:6px 0"></div><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
 <div class="ov" id="pop"><div class="mb"><button class="x" onclick="cl('pop')">×</button><a id="pa" target="_blank" rel="noopener"><img id="pi" style="width:100%;border-radius:10px"></a></div></div>
 <script>
 const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
@@ -87,22 +88,27 @@ function inj(el,html){Q=Q.then(async()=>{const d=document.createElement('div');d
 function showForm(){$('lt').textContent='প্রিমিয়াম কনটেন্টের জন্য অ্যাকাউন্ট করুন এবং সাবস্ক্রিপশনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।';$('fm').style.display='block';$('lock').classList.add('on')}
 function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" rel="noopener" href="${esc(tgl())}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
 async function init(){
+capInit('cf');
 const old=new URLSearchParams(location.search).get('v');
 if(old&&/^\d+$/.test(old)){location.replace('post.html?v='+old);return}
 const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};
+await me();
+if(maintGate(S,prof))return;
 $('tk').textContent=S.ticker||'';
-if(S.tg_channel)$('tgb').href=S.tg_channel;else $('tgb').style.display='none';
-if(S.fb){$('fbb').href=S.fb;$('fbb').style.display='inline-block'}
+if(S.tg_channel)$('tgb').href=safeUrl(S.tg_channel);else $('tgb').style.display='none';
+if(S.fb){$('fbb').href=safeUrl(S.fb);$('fbb').style.display='inline-block'}
 ['adsterra_script','ad_popunder','ad_socialbar'].forEach(k=>{if(S[k])inj(document.body,S[k])});
 if(S.ad_banner)inj($('adb'),S.ad_banner);
 if(S.ad_native)inj($('adn'),S.ad_native);
-await me();nav();ads();
+nav();ads();
 let tm;$('q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value.trim();page=1;nav();load()},350)};
 load();
 }
 async function me(){const{data:{session}}=await sb.auth.getSession();prof=null;if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;
+$('lk').style.display=session?'inline-block':'none';
 $('au').textContent=session?'Logout ('+(prof?.status||'')+')':'Login / Register';
 $('au').onclick=()=>session?sb.auth.signOut().then(()=>location.reload()):showForm()}
+async function tgLink(){const{data,error}=await sb.rpc('make_link_code');if(error)return alert(error.message);prompt('Telegram এ @'+(S.bot_username||'বট')+' এর কাছে এই লেখাটি পাঠান (১০ মিনিট মেয়াদ):','/link '+data)}
 function nav(){$('nv').innerHTML=NV.map(([k,l,ic])=>`<button class="${k==cat?'on':''}" onclick="cat='${k}';q='';$('q').value='';page=1;nav();load()"><i>${ic}</i>${l}</button>`).join('');$('sh').textContent=q?'🔍 সার্চ রেজাল্ট: '+q:(()=>{const n=NV.find(n=>n[0]==cat)||[];return (n[2]||'')+' '+(n[1]||'')})()}
 const go=id=>location.href='post.html?v='+encodeURIComponent(id);
 async function load(){
@@ -121,14 +127,14 @@ for(let i=Math.max(1,page-2);i<=Math.min(n,Math.max(1,page-2)+4);i++)h+=`<button
 if(page<n)h+=`<button ${go2(page+1)}>Next »</button>`;
 $('pg').innerHTML=h;
 }
-async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')}}});if(error)return alert(error.message);await me();showSub()}
-async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value});if(error)return alert(error.message);cl('lock');me()}
+async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')},captchaToken:capToken()}});capReset();if(error)return alert(error.message);await me();showSub()}
+async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value,options:{captchaToken:capToken()}});capReset();if(error)return alert(error.message);cl('lock');me()}
 async function ads(){
 const now=new Date().toISOString();const{data}=await sb.from('ads').select('*').eq('active',true).or(`expires_at.is.null,expires_at.gt.${now}`);
 const bn=(data||[]).filter(a=>a.kind==='banner'),pp=(data||[]).filter(a=>a.kind==='popup');
-if(bn.length){$('bn').innerHTML='<div>'+bn.map(a=>`<a href="${esc(a.link)}" target="_blank" rel="noopener" onclick="sb.rpc('ad_click',{aid:${Number(a.id)}})"><img src="${esc(a.image_url)}"></a>`).join('')+'</div>';let i=0;setInterval(()=>{if($('bn').firstChild){i=(i+1)%bn.length;$('bn').firstChild.style.transform=`translateX(-${i*100}%)`}},4000)}
+if(bn.length){$('bn').innerHTML='<div>'+bn.map(a=>`<a href="${esc(safeUrl(a.link))}" target="_blank" rel="noopener" onclick="sb.rpc('ad_click',{aid:${Number(a.id)}})"><img src="${esc(a.image_url)}"></a>`).join('')+'</div>';let i=0;setInterval(()=>{if($('bn').firstChild){i=(i+1)%bn.length;$('bn').firstChild.style.transform=`translateX(-${i*100}%)`}},4000)}
 const last=+localStorage.getItem('pp')||0;
-if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;$('pa').href=a.link;$('pa').onclick=()=>sb.rpc('ad_click',{aid:a.id});setTimeout(()=>{$('pop').classList.add('on');localStorage.setItem('pp',Date.now())},3000)}
+if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;$('pa').href=safeUrl(a.link);$('pa').onclick=()=>sb.rpc('ad_click',{aid:a.id});setTimeout(()=>{$('pop').classList.add('on');localStorage.setItem('pp',Date.now())},3000)}
 }
 init();
 </script>
