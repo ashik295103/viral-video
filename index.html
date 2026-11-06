@@ -100,7 +100,7 @@ if(old&&/^\d+$/.test(old)){location.replace('post.html?v='+old);return}
 const pS=R(sb.from('settings').select('*').eq('id',1).single());
 const pA=R(sb.from('ads').select('*').eq('active',true).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`));
 const pM=me();
-let tm;$('q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value.trim();page=1;nav();load()},350)};
+let tm;$('q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value.trim().slice(0,60);page=1;nav();load()},350)};
 nav();load();
 const{data}=await pS;S=data||{};applyTheme(S);
 await pM;
@@ -131,10 +131,11 @@ $('pg').innerHTML=h;
 }
 async function load(){
 const rid=++LR,key='pl:'+cat+':'+page;let shown=false;
+if(q&&q.replace(/[\s,#]+/g,'').length<2){$('gr').innerHTML='<p style="grid-column:1/3;text-align:center;color:#889">সার্চের জন্য কমপক্ষে ২ অক্ষর লিখুন</p>';$('pg').innerHTML='';return}
 // আগে দেখা লিস্ট থাকলে সাথে সাথে দেখাই, পেছনে নতুন ডেটা আনি
 if(!q){try{const c=sessionStorage.getItem(key);if(c){const j=JSON.parse(c);paint(j.d,j.c);shown=true}}catch(e){}}
 if(!shown)$('gr').innerHTML='<p style="grid-column:1/3;text-align:center;color:#889">লোড হচ্ছে...</p>';
-let r=sb.from('posts').select(COLS,{count:'estimated'}).order('created_at',{ascending:false}).range((page-1)*PER,page*PER-1);
+let r=sb.from('posts').select(COLS,{count:'exact'}).order('created_at',{ascending:false}).range((page-1)*PER,page*PER-1);
 if(!q)r=cat==='home'?r.neq('type','premium'):cat==='viral'?r.eq('type','viral'):cat==='premium'?r.eq('type','premium'):r.eq('category',cat).neq('type','premium');
 else q.split(/[\s,#]+/).map(w=>w.replace(/[%*(),.:"'\\_]/g,'')).filter(Boolean).slice(0,5).forEach(w=>{r=r.or(`title.ilike.%${w}%,tags.ilike.%${w}%`)});
 const{data,count,error}=await r;
@@ -144,7 +145,7 @@ if(!q){try{sessionStorage.setItem(key,JSON.stringify({d:data||[],c:count||0}))}c
 paint(data,count);
 if(data?.length)sb.rpc('imp',{ids:data.map(p=>p.id)}).then(()=>{},()=>{});
 }
-async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')},captchaToken:capToken()}});capReset();if(error)return alert(error.message);await me();showSub()}
+async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','').trim().toLowerCase()},captchaToken:capToken()}});capReset();if(error)return alert(error.message);await me();showSub()}
 async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value,options:{captchaToken:capToken()}});capReset();if(error)return alert(error.message);cl('lock');me()}
 const adc=id=>{sb.rpc('ad_click',{aid:Number(id)}).then(()=>{},()=>{})};
 async function ads(p){
