@@ -1,22 +1,27 @@
 <!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin • Viral Video</title><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><script>if(top!==self){document.documentElement.style.display='none';try{top.location=self.location}catch(e){}}</script>
+<script>(function(){try{var t=localStorage.getItem('avt');if(['neon','sunset','ocean','light'].indexOf(t)>=0)document.documentElement.setAttribute('data-at',t)}catch(e){}})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="maint.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#0a0a14;color:#eee;font-family:system-ui,sans-serif;font-size:14px}
-header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#12122a;border-bottom:1px solid #2a2a4a}
-.tabs{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;background:#0e0e20;position:sticky;top:0;z-index:5}
-.tabs button{flex:none;background:#18182b;color:#aaa;border:1px solid #2a2a4a}.tabs button.on{background:linear-gradient(135deg,#b44cff,#00e5ff);color:#fff;border:0}
+:root{color-scheme:dark;--bg:#0a0a14;--c:#18182b;--h:#12122a;--t2:#0e0e20;--bd:#2a2a4a;--t:#eee;--mu:#889;--lb:#9ab;--inp:#0a0a14;--ib:#333;--g1:#b44cff;--g2:#00e5ff;--ac:#00e5ff;--sb:#2a2a4a}
+html[data-at=sunset]{--bg:#1a0c14;--c:#2a1421;--h:#220f1a;--t2:#1e0d17;--bd:#4a2438;--t:#f4e8ee;--mu:#b89aa8;--lb:#d9a9bd;--inp:#14080f;--ib:#5a2f45;--g1:#ff3d7f;--g2:#ffb020;--ac:#ffb020;--sb:#4a2438}
+html[data-at=ocean]{--bg:#06141f;--c:#0d2536;--h:#0a1d2d;--t2:#081a29;--bd:#174562;--t:#e6f3ff;--mu:#7f9fb5;--lb:#8fbfd6;--inp:#04101a;--ib:#1d4a66;--g1:#2f8dff;--g2:#2ee6c5;--ac:#2ee6c5;--sb:#174562}
+html[data-at=light]{color-scheme:light;--bg:#eef2ff;--c:#ffffff;--h:#e3e8fb;--t2:#e6eafb;--bd:#c9d0ee;--t:#222;--mu:#667;--lb:#556;--inp:#f6f8ff;--ib:#bcc4e6;--g1:#7c3aed;--g2:#00a6d6;--ac:#7c3aed;--sb:#6b76a8}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font-family:system-ui,sans-serif;font-size:14px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--h);border-bottom:1px solid var(--bd)}
+.tabs{display:flex;gap:6px;padding:10px 14px;overflow-x:auto;background:var(--t2);position:sticky;top:0;z-index:5}
+.tabs button{flex:none;background:var(--c);color:var(--mu);border:1px solid var(--bd)}.tabs button.on{background:linear-gradient(135deg,var(--g1),var(--g2));color:#fff;border:0}
 main{max-width:860px;margin:0 auto;padding:14px}
-.card{background:#18182b;border:1px solid #2a2a4a;border-radius:12px;padding:14px;margin-bottom:14px}
-h3,h4{margin:0 0 8px}label{display:block;margin:10px 0 3px;color:#9ab;font-size:12px}
-input,select,textarea{width:100%;padding:10px;background:#0a0a14;color:#eee;border:1px solid #333;border-radius:8px;font:inherit}
+.card{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:14px}
+h3,h4{margin:0 0 8px}label{display:block;margin:10px 0 3px;color:var(--lb);font-size:12px}
+input,select,textarea{width:100%;padding:10px;background:var(--inp);color:var(--t);border:1px solid var(--ib);border-radius:8px;font:inherit}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-button{background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;padding:9px 14px;border-radius:8px;cursor:pointer;font:inherit}
-button.s{background:#2a2a4a}button.d{background:#c0392b}button.ok{background:#1e9e5a}button.w{background:#d68910}
-.row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid #2a2a4a}
+button{background:linear-gradient(135deg,var(--g1),var(--g2));border:0;color:#fff;padding:9px 14px;border-radius:8px;cursor:pointer;font:inherit}
+button.s{background:var(--sb)}button.d{background:#c0392b}button.ok{background:#1e9e5a}button.w{background:#d68910}
+.row{display:flex;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--bd)}
 .row img{width:64px;height:44px;object-fit:cover;border-radius:6px;background:#000;flex:none}
 .m{flex:1;min-width:0}.m b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.a{display:flex;gap:4px;flex-wrap:wrap}
-small{color:#889}.bd{display:inline-block;padding:1px 8px;border-radius:10px;background:#2a2a4a;font-size:11px;margin-right:4px}
-.st{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.st div{background:#18182b;border:1px solid #2a2a4a;border-radius:12px;padding:12px;text-align:center}.st b{display:block;font-size:20px;color:#00e5ff}
+small{color:var(--mu)}.bd{display:inline-block;padding:1px 8px;border-radius:10px;background:var(--bd);font-size:11px;margin-right:4px}
+.st{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}.st div{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:12px;text-align:center}.st b{display:block;font-size:20px;color:var(--ac)}
 #pv{max-width:150px;border-radius:8px;margin-top:6px;display:none}
 .c{display:none}.c.on{display:block}
 @media(max-width:560px){.g2{grid-template-columns:1fr}.row{flex-wrap:wrap}}
@@ -24,7 +29,7 @@ small{color:#889}.bd{display:inline-block;padding:1px 8px;border-radius:10px;bac
 <div id="lg" style="max-width:360px;margin:60px auto;padding:14px"><div class="card"><h3>🔐 Admin Login</h3><input id="e" placeholder="Email"><br><br><input id="p" type="password" placeholder="Password"><br><br><div id="cf" style="margin-bottom:10px"></div><button onclick="go()">Login</button></div></div>
 <div id="mf" style="display:none;max-width:360px;margin:60px auto;padding:14px"><div class="card"><h3>🔐 দুই-ধাপ কোড</h3><p>অথেনটিকেটর অ্যাপের ৬ সংখ্যার কোড দিন</p><input id="mc" inputmode="numeric" autocomplete="one-time-code" placeholder="123456"><br><br><button onclick="mfGo()">Verify</button></div></div>
 <div id="ap" style="display:none">
-<header><b>🔥 Viral Video — Admin</b><div style="display:flex;gap:6px"><button class="s" id="mtb" onclick="toggleMt()">🛠️ Maintenance</button><button class="s" onclick="sb.auth.signOut().then(()=>location.reload())">Logout</button></div></header>
+<header><b>🔥 Viral Video — Admin</b><div style="display:flex;gap:6px"><button class="s" onclick="cycleAT()" title="অ্যাডমিন প্যানেলের থিম বদলান">🎨</button><button class="s" id="mtb" onclick="toggleMt()">🛠️ Maintenance</button><button class="s" onclick="sb.auth.signOut().then(()=>location.reload())">Logout</button></div></header>
 <div class="tabs"><button class="on" onclick="tab('posts',this)">📹 পোস্ট</button><button onclick="tab('users',this)">👥 ইউজার</button><button onclick="tab('adsx',this)">📢 বিজ্ঞাপন</button><button onclick="tab('set',this)">⚙️ সেটিংস</button></div>
 <main>
 <div class="c on" id="posts"><div class="st"><div><b id="s1">0</b>পোস্ট</div><div><b id="s2">0</b>ভিউ</div><div><b id="s3">0</b>ক্লিক</div></div>
@@ -48,9 +53,13 @@ const bad=v=>/^\s*(javascript|data|vbscript):/i.test(String(v||''));
 function rst(){clearTimeout(idle);idle=setTimeout(()=>sb.auth.signOut().then(()=>location.reload()),30*60*1000)}
 ['click','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if($('ap').style.display!=='none')rst()}));
 const THEMES=[['neon','🌌 নিয়ন (ডিফল্ট)','#b44cff,#00e5ff','#0b0b1e','#eee'],['sunset','🌇 সানসেট','#ff3d7f,#ffb020','#1a0c14','#eee'],['ocean','🌊 ওশান','#2f8dff,#2ee6c5','#06141f','#eee'],['light','☀️ লাইট (সাদা)','#7c3aed,#00a6d6','#eef2ff','#222']];
-let TH='neon';
-function renderTh(){const e=$('thc');if(!e)return;e.innerHTML=`<div class="card"><h3>🎨 সাইটের থিম</h3><small>যেটায় ক্লিক করবেন সেটাই সাথে সাথে সেভ হবে। সাইট রিলোড দিলে নতুন থিম দেখা যাবে।</small><div class="g2" style="margin-top:10px">${THEMES.map(([k,n,g,b,tc])=>`<div onclick="setTheme('${k}')" style="cursor:pointer;border-radius:12px;padding:10px;background:${b};border:2px solid ${TH==k?'#00e5ff':'#333'};text-align:center"><div style="height:28px;border-radius:8px;background:linear-gradient(135deg,${g})"></div><div style="margin-top:6px;color:${tc};font-size:13px">${n}${TH==k?' ✅':''}</div></div>`).join('')}</div></div>`}
+const TH_KEYS=THEMES.map(t=>t[0]);
+let TH='neon',AT=document.documentElement.getAttribute('data-at')||'neon';
+function swatches(cur,fn){return THEMES.map(([k,n,g,b,tc])=>`<div onclick="${fn}('${k}')" style="cursor:pointer;border-radius:12px;padding:10px;background:${b};border:2px solid ${cur==k?'var(--ac)':'#888'};text-align:center"><div style="height:28px;border-radius:8px;background:linear-gradient(135deg,${g})"></div><div style="margin-top:6px;color:${tc};font-size:13px">${n}${cur==k?' ✅':''}</div></div>`).join('')}
+function renderTh(){const e=$('thc');if(!e)return;e.innerHTML=`<div class="card"><h3>🎨 সাইটের থিম</h3><small>যেটায় ক্লিক করবেন সেটাই সাথে সাথে সেভ হবে। ভিজিটররা সাইট রিলোড দিলে নতুন থিম দেখবে।</small><div class="g2" style="margin-top:10px">${swatches(TH,'setTheme')}</div></div><div class="card"><h3>🖥️ অ্যাডমিন প্যানেলের থিম</h3><small>শুধু এই ব্রাউজারে আপনার অ্যাডমিন প্যানেলের রঙ বদলায়, সাইটে কোনো প্রভাব ফেলে না। উপরের 🎨 বাটন দিয়েও বদলানো যায়।</small><div class="g2" style="margin-top:10px">${swatches(AT,'setAT')}</div></div>`}
 async function setTheme(k){const{error}=await sb.from('settings').update({theme:k}).eq('id',1);if(error)return alert(error.message+'\n(patch_02_theme.sql Run করেছেন কি?)');TH=k;renderTh()}
+function setAT(k){AT=k;document.documentElement.setAttribute('data-at',k);try{localStorage.setItem('avt',k)}catch(e){}renderTh()}
+function cycleAT(){setAT(TH_KEYS[(TH_KEYS.indexOf(AT)+1)%TH_KEYS.length])}
 const MFC=`<div class="card"><h3>🔐 দুই-ধাপ নিরাপত্তা (MFA)</h3><p style="margin:0 0 10px">অবস্থা: <b id="mfs">...</b></p><div id="mfa"></div></div>`;
 const MTC=`<div class="card" style="border-color:#d68910"><h3>🛠️ রক্ষণাবেক্ষণ মোড</h3><p style="margin:0 0 10px">বর্তমান অবস্থা: <b id="mts"></b></p><button id="mtbtn" onclick="toggleMt()"></button><small style="display:block;margin-top:8px">চালু করলে সাধারণ ভিজিটররা সাইটের বদলে নিচের বার্তাটি দেখবে এবং পোস্ট/লিংক ডেটাও সার্ভার থেকে বন্ধ থাকবে। অ্যাডমিন হিসেবে লগইন থাকলে আপনি সাইট স্বাভাবিক দেখবেন।</small><label>ভিজিটরদের যে বার্তা দেখাবে</label><textarea id="s_maintenance_msg" rows="5"></textarea><small>বার্তা বদলে নিচের "সব Save করুন" চাপুন।</small></div>`;
 function mtUI(){if(!$('mts'))return;$('mts').textContent=MT?'🔴 চালু (সাইট বন্ধ)':'🟢 বন্ধ (সাইট স্বাভাবিক)';$('mtbtn').textContent=MT?'✅ সাইট আবার চালু করুন':'🛠️ রক্ষণাবেক্ষণ মোড চালু করুন';$('mtbtn').className=MT?'ok':'w';$('mtb').textContent=MT?'🔴 Maintenance ON':'🟢 Maintenance OFF'}
