@@ -1,6 +1,28 @@
 // maint.js — রক্ষণাবেক্ষণ মোড + নিরাপদ লিংক হেল্পার
 // index.html ও post.html এ config.js এর ঠিক পরে লোড হবে।
 
+// ---- থিম (neon / sunset / ocean / light) ----
+// পেজ খোলার সাথে সাথে আগের সেভ করা থিম বসায় (যাতে রঙ ঝলকে না যায়)।
+// ?theme=light লিখে লিংক খুললে সেই থিম প্রিভিউ করা যায়।
+var THEMES_OK = ['neon', 'sunset', 'ocean', 'light'];
+(function () {
+  var t = 'neon';
+  try {
+    var q = new URLSearchParams(location.search).get('theme');
+    var s = localStorage.getItem('vvt');
+    t = THEMES_OK.indexOf(q) >= 0 ? q : (THEMES_OK.indexOf(s) >= 0 ? s : 'neon');
+  } catch (e) {}
+  document.documentElement.setAttribute('data-theme', t);
+})();
+window.applyTheme = function (S) {
+  try {
+    var q = new URLSearchParams(location.search).get('theme');
+    var t = THEMES_OK.indexOf(q) >= 0 ? q : (S && THEMES_OK.indexOf(S.theme) >= 0 ? S.theme : 'neon');
+    document.documentElement.setAttribute('data-theme', t);
+    if (THEMES_OK.indexOf(q) < 0) localStorage.setItem('vvt', t);
+  } catch (e) {}
+};
+
 // শুধু http/https লিংক গ্রহণ করে (javascript: ইত্যাদি আটকায়)
 window.safeUrl = function (u) {
   u = String(u == null ? '' : u).trim();
