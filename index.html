@@ -58,6 +58,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 @media(max-width:420px){#gr{gap:8px}}
 .fl{max-width:980px;margin:18px auto 0;padding:16px 12px;border-top:1px solid var(--bd);text-align:center;color:#889;font-size:12px}.fl a{color:#aab;text-decoration:none;display:inline-block;margin:4px 8px;font-size:13px}.fl a:hover{color:var(--g)}.fl p{margin-top:8px;line-height:1.6}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <header><b>🔥 Viral Video</b><div style="display:flex;gap:6px"><button class="b" id="lk" style="width:auto;padding:8px 12px;display:none" onclick="tgLink()">🔗 Telegram</button><button class="b" id="au" style="width:auto;padding:8px 14px"></button></div></header>
@@ -91,7 +92,7 @@ async function init(){
 capInit('cf');
 const old=new URLSearchParams(location.search).get('v');
 if(old&&/^\d+$/.test(old)){location.replace('post.html?v='+old);return}
-const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};
+const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};applyTheme(S);
 await me();
 if(maintGate(S,prof))return;
 $('tk').textContent=S.ticker||'';
