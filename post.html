@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Viral Video</title>
+<link rel="preconnect" href="https://xeedxpwlvdaengupbxbc.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="//pl32107782.profitableratecpmnetwork.com">
+<link rel="dns-prefetch" href="//pl32107781.profitableratecpmnetwork.com">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="maint.js"></script>
@@ -51,12 +55,12 @@ h1{font-size:21px;line-height:1.4;margin:6px 0 12px}
 <footer class="fl"><div><a href="info.html?p=about">আমাদের সম্পর্কে</a><a href="info.html?p=contact">যোগাযোগ</a><a href="info.html?p=privacy">প্রাইভেসি পলিসি</a><a href="info.html?p=terms">শর্তাবলী</a><a href="info.html?p=disclaimer">দাবিত্যাগ</a><a href="info.html?p=dmca">DMCA</a><a href="info.html?p=cookie">কুকি পলিসি</a></div><p>© 2026 Viral Video. সর্বস্বত্ব সংরক্ষিত।<br>এই সাইট ১৮+ ব্যবহারকারীদের জন্য। ⚠️18+Restricted🚫</p></footer>
 <div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><div id="cf" style="margin:6px 0"></div><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
 <script>
-const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
+const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on'),R=b=>Promise.resolve(b);
 let S={},P=null,prof=null;
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 const tgl=()=>{const a=S.success_tg||S.admin_tg||'sgboss27';return /^http/.test(a)?a:'https://t.me/'+a.replace('@','')};
 let Q=Promise.resolve();
-function inj(el,html){Q=Q.then(async()=>{const d=document.createElement('div');d.innerHTML=html;const sc=[...d.querySelectorAll('script')];el.appendChild(d);for(const o of sc){const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;await new Promise(r=>{if(n.src){n.onload=n.onerror=r}o.replaceWith(n);if(!n.src)r()})}}).catch(()=>{})}
+function inj(el,html){Q=Q.then(async()=>{const d=document.createElement('div');d.innerHTML=html;const sc=[...d.querySelectorAll('script')];el.appendChild(d);for(const o of sc){const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;await new Promise(r=>{if(n.src){n.onload=n.onerror=r;setTimeout(r,4000)}o.replaceWith(n);if(!n.src)r()})}}).catch(()=>{})}
 function showForm(){$('lt').textContent='প্রিমিয়াম কনটেন্টের জন্য অ্যাকাউন্ট করুন এবং সাবস্ক্রিপশনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।';$('fm').style.display='block';$('lock').classList.add('on')}
 function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" rel="noopener" href="${esc(tgl())}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
 // ছোট শেয়ার লিংক: ওয়েবসাইট/post.html?v=ID
@@ -65,20 +69,27 @@ function splitDesc(t){const m=t.length/2;let best=-1,bd=1e9;for(const re of [/\n
 function descBlock(t){t=(t||'').trim();if(!t)return '<div class="desc">এই কনটেন্টের কোনো বিবরণ দেওয়া হয়নি।</div>';const[a,b]=splitDesc(t);return `<div class="desc">${esc(a)}</div><div class="adbox" id="adm"></div>`+(b?`<div class="desc">${esc(b)}</div>`:'')}
 async function init(){
 capInit('cf');
-const id=new URLSearchParams(location.search).get('v');
-const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};applyTheme(S);
-const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;
+const id=new URLSearchParams(location.search).get('v'),valid=id&&/^\d+$/.test(id);
+// সেটিংস, লগইন প্রোফাইল আর পোস্ট — তিনটাই একসাথে আনা হয়
+const pS=R(sb.from('settings').select('*').eq('id',1).single());
+const pU=sb.auth.getSession().then(async({data:{session}})=>session?(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data:null);
+const pP=valid?R(sb.from('posts').select('*').eq('id',id).maybeSingle()):null;
+const{data}=await pS;S=data||{};applyTheme(S);
+prof=await pU;
 if(maintGate(S,prof))return;
 ['adsterra_script','ad_popunder','ad_socialbar'].forEach(k=>{if(S[k])inj(document.body,S[k])});
 if(S.ad_banner)inj($('adb'),S.ad_banner);
 if(S.ad_native)inj($('adn'),S.ad_native);
-if(!id||!/^\d+$/.test(id))return nf();
-const{data:p,error}=await sb.from('posts').select('*').eq('id',id).maybeSingle();
+if(!valid)return nf();
+const{data:p,error}=await pP;
 if(error||!p)return nf();
 P=p;document.title=(p.title||'Viral Video')+' | Viral Video';
+// ভিউ গণনা (একই ট্যাবে একই পোস্ট বারবার রিলোড দিলে একবারই গোনা হবে)
+let counted=false;try{counted=!!sessionStorage.getItem('v'+p.id)}catch(e){}
+if(!counted){try{sessionStorage.setItem('v'+p.id,'1')}catch(e){}p.views=Number(p.views||0)+1;sb.rpc('hit',{pid:p.id,k:'view'}).then(()=>{},()=>{})}
 const u=shareUrl(p.id),vid=p.category==='video';
 $('d').innerHTML=`<div class="panel">
-${p.thumb?`<img class="hero" src="${esc(p.thumb)}" alt="${esc(p.title)}">`:''}
+${p.thumb?`<img class="hero" src="${esc(p.thumb)}" decoding="async" alt="${esc(p.title)}">`:''}
 <div class="body">
 <h1>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h1>
 <div><span class="bd">🏷️ ${esc(p.category||'')}</span><span class="bd">${esc(p.type||'')}</span><span class="bd">📅 ${esc(new Date(p.created_at).toLocaleDateString('bn-BD'))}</span><span class="bd">👁 ${Number(p.views||0)}</span><span class="bd">⬇ ${Number(p.clicks||0)}</span></div>
@@ -109,8 +120,8 @@ async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,pass
 async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value,options:{captchaToken:capToken()}});capReset();if(error)return alert(error.message);const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;cl('lock')}
 init();
 </script>
-<script src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
-<script src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
+<script async src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
+<script async src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
 <div id="abk" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0a14f5;align-items:center;justify-content:center;padding:20px;text-align:center;color:#eee;font-family:system-ui,sans-serif"><div style="max-width:340px;background:#18182b;border:1px solid #b44cff;border-radius:16px;padding:22px"><div style="font-size:44px">🕵️</div><p style="font-size:17px;font-weight:bold;line-height:1.6;color:#00e5ff;margin:8px 0 14px">ওহো! অ্যাড ব্লকার নিয়ে ঢুকেছো? 😏 ধরে ফেলেছি ভাই, আমার চোখ ফাঁকি দেওয়া এত সোজা না! 🤭</p><h3 style="margin:8px 0">🚫 অ্যাড ব্লকার চালু আছে</h3><p style="line-height:1.7;color:#ccd;margin-bottom:16px">এই সাইট বিজ্ঞাপনের আয়ে চলে। অনুগ্রহ করে অ্যাড ব্লকার (বা প্রাইভেট DNS / ব্রাউজারের ব্লকার) বন্ধ করে পেজটি রিলোড করুন।</p><button onclick="location.reload()" style="background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;border-radius:10px;padding:12px 18px;font:inherit;cursor:pointer;width:100%">আমি বন্ধ করেছি, রিলোড করুন</button></div></div>
 <script>
 (function(){
