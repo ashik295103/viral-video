@@ -1,5 +1,5 @@
-<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin • Viral Video</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script>
+<!DOCTYPE html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin • Viral Video</title><meta name="robots" content="noindex,nofollow"><meta name="referrer" content="no-referrer"><script>if(top!==self){document.documentElement.style.display='none';try{top.location=self.location}catch(e){}}</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script><script src="maint.js"></script>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#0a0a14;color:#eee;font-family:system-ui,sans-serif;font-size:14px}
 header{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#12122a;border-bottom:1px solid #2a2a4a}
@@ -21,9 +21,10 @@ small{color:#889}.bd{display:inline-block;padding:1px 8px;border-radius:10px;bac
 .c{display:none}.c.on{display:block}
 @media(max-width:560px){.g2{grid-template-columns:1fr}.row{flex-wrap:wrap}}
 </style></head><body>
-<div id="lg" style="max-width:360px;margin:60px auto;padding:14px"><div class="card"><h3>🔐 Admin Login</h3><input id="e" placeholder="Email"><br><br><input id="p" type="password" placeholder="Password"><br><br><button onclick="go()">Login</button></div></div>
+<div id="lg" style="max-width:360px;margin:60px auto;padding:14px"><div class="card"><h3>🔐 Admin Login</h3><input id="e" placeholder="Email"><br><br><input id="p" type="password" placeholder="Password"><br><br><div id="cf" style="margin-bottom:10px"></div><button onclick="go()">Login</button></div></div>
+<div id="mf" style="display:none;max-width:360px;margin:60px auto;padding:14px"><div class="card"><h3>🔐 দুই-ধাপ কোড</h3><p>অথেনটিকেটর অ্যাপের ৬ সংখ্যার কোড দিন</p><input id="mc" inputmode="numeric" autocomplete="one-time-code" placeholder="123456"><br><br><button onclick="mfGo()">Verify</button></div></div>
 <div id="ap" style="display:none">
-<header><b>🔥 Viral Video — Admin</b><button class="s" onclick="sb.auth.signOut().then(()=>location.reload())">Logout</button></header>
+<header><b>🔥 Viral Video — Admin</b><div style="display:flex;gap:6px"><button class="s" id="mtb" onclick="toggleMt()">🛠️ Maintenance</button><button class="s" onclick="sb.auth.signOut().then(()=>location.reload())">Logout</button></div></header>
 <div class="tabs"><button class="on" onclick="tab('posts',this)">📹 পোস্ট</button><button onclick="tab('users',this)">👥 ইউজার</button><button onclick="tab('adsx',this)">📢 বিজ্ঞাপন</button><button onclick="tab('set',this)">⚙️ সেটিংস</button></div>
 <main>
 <div class="c on" id="posts"><div class="st"><div><b id="s1">0</b>পোস্ট</div><div><b id="s2">0</b>ভিউ</div><div><b id="s3">0</b>ক্লিক</div></div>
@@ -41,23 +42,36 @@ small{color:#889}.bd{display:inline-block;padding:1px 8px;border-radius:10px;bac
 <div class="c" id="set"><div id="sf"></div><button class="ok" onclick="saveSet()">💾 সব Save করুন</button></div>
 </main></div>
 <script>
-const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i);let P=[];
-const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i);let P=[],MT=false,idle;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const bad=v=>/^\s*(javascript|data|vbscript):/i.test(String(v||''));
+function rst(){clearTimeout(idle);idle=setTimeout(()=>sb.auth.signOut().then(()=>location.reload()),30*60*1000)}
+['click','keydown','touchstart'].forEach(e=>addEventListener(e,()=>{if($('ap').style.display!=='none')rst()}));
+const MFC=`<div class="card"><h3>🔐 দুই-ধাপ নিরাপত্তা (MFA)</h3><p style="margin:0 0 10px">অবস্থা: <b id="mfs">...</b></p><div id="mfa"></div></div>`;
+const MTC=`<div class="card" style="border-color:#d68910"><h3>🛠️ রক্ষণাবেক্ষণ মোড</h3><p style="margin:0 0 10px">বর্তমান অবস্থা: <b id="mts"></b></p><button id="mtbtn" onclick="toggleMt()"></button><small style="display:block;margin-top:8px">চালু করলে সাধারণ ভিজিটররা সাইটের বদলে নিচের বার্তাটি দেখবে এবং পোস্ট/লিংক ডেটাও সার্ভার থেকে বন্ধ থাকবে। অ্যাডমিন হিসেবে লগইন থাকলে আপনি সাইট স্বাভাবিক দেখবেন।</small><label>ভিজিটরদের যে বার্তা দেখাবে</label><textarea id="s_maintenance_msg" rows="5"></textarea><small>বার্তা বদলে নিচের "সব Save করুন" চাপুন।</small></div>`;
+function mtUI(){if(!$('mts'))return;$('mts').textContent=MT?'🔴 চালু (সাইট বন্ধ)':'🟢 বন্ধ (সাইট স্বাভাবিক)';$('mtbtn').textContent=MT?'✅ সাইট আবার চালু করুন':'🛠️ রক্ষণাবেক্ষণ মোড চালু করুন';$('mtbtn').className=MT?'ok':'w';$('mtb').textContent=MT?'🔴 Maintenance ON':'🟢 Maintenance OFF'}
+async function toggleMt(){const n=!MT;if(!confirm(n?'রক্ষণাবেক্ষণ মোড চালু করবেন? সাধারণ ভিজিটররা সাইট দেখতে পাবে না।':'সাইট আবার সবার জন্য চালু করবেন?'))return;const o={maintenance:n};const m=$('s_maintenance_msg');if(m)o.maintenance_msg=m.value;const{error}=await sb.from('settings').update(o).eq('id',1);if(error)return alert(error.message);MT=n;mtUI()}
 const SET=[['সাধারণ',[['ticker','উপরের স্ক্রলিং নোটিশ'],['bot_username','টেলিগ্রাম বটের ইউজারনেম (@ ছাড়া)'],['admin_tg','অ্যাডমিনের টেলিগ্রাম লিংক (https://t.me/sgboss27)'],['success_tg','রেজিস্ট্রেশনের পর যে টেলিগ্রাম লিংক দেখাবে (ফাঁকা থাকলে উপরেরটা)']]],['সোশ্যাল',[['tg_channel','টেলিগ্রাম চ্যানেল লিংক (নিচের Join বাটন)'],['fb','ফেসবুক পেজ লিংক']]],['এড প্লেসমেন্ট (Adsterra)',[['adsterra_link','Smart Link — Watch চাপলে আগে নতুন ট্যাবে খুলবে'],['ad_banner','ব্যানার/নেটিভ কোড #১ → ক্যাটাগরি মেনুর নিচে, পোস্টের উপরে দেখাবে','a'],['ad_native','ব্যানার/নেটিভ কোড #২ → পোস্ট গ্রিডের নিচে, পেজ নম্বরের উপরে দেখাবে','a'],['ad_post_mid','পোস্ট পেজ ব্যানার (৩০০×২৫০ সাইজ সবচেয়ে ভালো) → বিবরণের মাঝখানে দেখাবে','a'],['ad_popunder','পপআন্ডার কোড → পুরো সাইটে চলবে','a'],['ad_socialbar','সোশ্যাল বার কোড → পুরো সাইটে চলবে','a'],['adsterra_script','অন্যান্য গ্লোবাল স্ক্রিপ্ট → পুরো সাইটে চলবে','a']]]];
-const F=SET.flatMap(g=>g[1].map(f=>f[0]));
+const F=[...SET.flatMap(g=>g[1].map(f=>f[0])),'maintenance_msg'];
 function tab(k,b){document.querySelectorAll('.c').forEach(c=>c.classList.toggle('on',c.id==k));document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b))}
 async function up(fid,tid){const f=$(fid).files[0];if(!f)return;const n=Date.now()+'_'+f.name.replace(/[^\w.]/g,'');const{error}=await sb.storage.from('images').upload(n,f);if(error)return alert(error.message);$(tid).value=sb.storage.from('images').getPublicUrl(n).data.publicUrl;prev();alert('✅ আপলোড হয়েছে')}
 function prev(){const v=$('th').value;$('pv').src=v;$('pv').style.display=v?'block':'none'}
-async function go(){const{error}=await sb.auth.signInWithPassword({email:$('e').value,password:$('p').value});if(error)return alert(error.message);chk()}
-async function chk(){const{data:{session}}=await sb.auth.getSession();if(!session)return;const{data}=await sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle();if(!data?.is_admin)return alert('এই অ্যাকাউন্ট অ্যাডমিন নয়');$('lg').style.display='none';$('ap').style.display='block';lp();lu();la();ls()}
+async function go(){const{error}=await sb.auth.signInWithPassword({email:$('e').value,password:$('p').value,options:{captchaToken:capToken()}});capReset();if(error)return alert(error.message);chk()}
+async function mfGo(){const{data:f,error:e0}=await sb.auth.mfa.listFactors();if(e0)return alert(e0.message);const t=(f.totp||[])[0];if(!t)return alert('MFA ফ্যাক্টর পাওয়া যায়নি');const{error}=await sb.auth.mfa.challengeAndVerify({factorId:t.id,code:$('mc').value.trim()});if(error)return alert(error.message);$('mc').value='';$('mf').style.display='none';chk()}
+let MFID;
+async function mfUI(){const{data:f}=await sb.auth.mfa.listFactors();const on=(f?.totp||[]).length>0;$('mfs').textContent=on?'🟢 চালু আছে':'🔴 বন্ধ আছে — চালু করার পরামর্শ দিচ্ছি';$('mfa').innerHTML=on?'':'<button class="ok" onclick="mfEnroll()">MFA চালু করুন</button>'}
+async function mfEnroll(){const{data,error}=await sb.auth.mfa.enroll({factorType:'totp',friendlyName:'admin-'+Date.now()});if(error)return alert(error.message);MFID=data.id;$('mfa').innerHTML=`<p>Google Authenticator বা Authy অ্যাপে এই QR স্ক্যান করুন। একই ফোনে হলে নিচের Secret কপি করে অ্যাপে "setup key" হিসেবে দিন।</p><img src="${esc(data.totp.qr_code)}" alt="QR" style="width:180px;background:#fff;padding:6px;border-radius:8px"><p><small>Secret:</small> <code style="word-break:break-all">${esc(data.totp.secret)}</code></p><input id="mfc" inputmode="numeric" placeholder="অ্যাপের ৬ সংখ্যার কোড"><br><br><button class="ok" onclick="mfVerify()">নিশ্চিত করুন</button>`}
+async function mfVerify(){const{error}=await sb.auth.mfa.challengeAndVerify({factorId:MFID,code:$('mfc').value.trim()});if(error)return alert(error.message);alert('✅ MFA চালু হয়েছে। এখন থেকে লগইনে কোড লাগবে।');mfUI()}
+async function chk(){const{data:{session}}=await sb.auth.getSession();if(!session)return;
+const{data:aal}=await sb.auth.mfa.getAuthenticatorAssuranceLevel();if(aal&&aal.nextLevel==='aal2'&&aal.currentLevel!=='aal2'){$('lg').style.display='none';$('mf').style.display='block';return}const{data}=await sb.from('profiles').select('is_admin').eq('id',session.user.id).maybeSingle();if(!data?.is_admin){await sb.auth.signOut();return alert('এই অ্যাকাউন্ট অ্যাডমিন নয়')}$('lg').style.display='none';$('ap').style.display='block';rst();lp();lu();la();ls()}
 async function lp(){const{data}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(200);P=data||[];
 $('s1').textContent=P.length;$('s2').textContent=P.reduce((a,p)=>a+p.views,0);$('s3').textContent=P.reduce((a,p)=>a+p.clicks,0);
-$('pl').innerHTML=P.map((p,i)=>`<div class="row"><img src="${esc(p.thumb)}"><div class="m"><b>${esc(p.title)}</b><span class="bd">${p.category}</span><span class="bd">${p.type}</span><small>👁${p.views} 🖱${p.clicks} 📈${p.impressions}</small></div><div class="a"><button class="s" onclick="openF(${i})">✏️</button><button class="d" onclick="dp(${p.id})">🗑</button></div></div>`).join('')||'<p>কোনো পোস্ট নেই</p>'}
+$('pl').innerHTML=P.map((p,i)=>`<div class="row"><img src="${esc(p.thumb)}"><div class="m"><b>${esc(p.title)}</b><span class="bd">${esc(p.category)}</span><span class="bd">${esc(p.type)}</span><small>👁${Number(p.views)} 🖱${Number(p.clicks)} 📈${Number(p.impressions)}</small></div><div class="a"><button class="s" onclick="openF(${i})">✏️</button><button class="d" onclick="dp(${p.id})">🗑</button></div></div>`).join('')||'<p>কোনো পোস্ট নেই</p>'}
 async function openF(i){const p=i==null?{}:P[i];$('eid').value=p.id||'';$('ft').textContent=p.id?'পোস্ট এডিট':'নতুন পোস্ট';
 $('pt').value=p.title||'';$('pd').value=p.descr||'';$('pg').value=p.tags||'';$('pc').value=p.category||'video';$('py').value=p.type||'normal';$('th').value=p.thumb||'';$('dl').value='';$('tm').value='';prev();
 $('pf').style.display='block';$('pf').scrollIntoView();
 if(p.id){const{data}=await sb.from('post_links').select('*').eq('post_id',p.id).maybeSingle();$('dl').value=data?.direct_link||'';$('tm').value=data?.tg_msg_id||''}}
-async function savePost(){if(!$('pt').value)return alert('টাইটেল দিন');if(!$('dl').value&&!$('tm').value)return alert('Direct Link অথবা Telegram Message ID দিন');
+async function savePost(){if(!$('pt').value)return alert('টাইটেল দিন');if(bad($('dl').value)||bad($('th').value))return alert('লিংকে javascript:/data: ব্যবহার করা যাবে না');if(!$('dl').value&&!$('tm').value)return alert('Direct Link অথবা Telegram Message ID দিন');
 const o={title:$('pt').value,descr:$('pd').value,tags:$('pg').value,category:$('pc').value,type:$('py').value,thumb:$('th').value};let id=$('eid').value;
 if(id){const r=await sb.from('posts').update(o).eq('id',id);if(r.error)return alert(r.error.message)}else{const r=await sb.from('posts').insert(o).select().single();if(r.error)return alert(r.error.message);id=r.data.id}
 const r2=await sb.from('post_links').upsert({post_id:id,direct_link:$('dl').value||null,tg_msg_id:$('tm').value||null});if(r2.error)return alert(r2.error.message);
@@ -69,10 +83,10 @@ $('ul').innerHTML=g('pending','⏳ অনুমোদনের অপেক্�
 async function us(id,s){await sb.from('profiles').update({status:s}).eq('id',id);lu()}
 async function du(id){if(confirm('অ্যাকাউন্ট পুরোপুরি ডিলিট হবে। নিশ্চিত?')){const{error}=await sb.rpc('delete_user',{uid:id});if(error)alert(error.message);lu()}}
 async function la(){const{data}=await sb.from('ads').select('*').order('id',{ascending:false});$('al').innerHTML=(data||[]).map(a=>`<div class="row"><img src="${esc(a.image_url)}"><div class="m"><b>${a.kind=='popup'?'পপ-আপ':'ব্যানার'}</b><small>🖱 ${a.clicks} ${a.expires_at?'• শেষ: '+new Date(a.expires_at).toLocaleString():''}</small></div><button class="d" onclick="da(${a.id})">🗑</button></div>`).join('')||'<p>কোনো বিজ্ঞাপন নেই</p>'}
-async function saveAd(){if(!$('ai').value||!$('alk').value)return alert('ছবি ও লিংক দিন');const{error}=await sb.from('ads').insert({kind:$('ak').value,image_url:$('ai').value,link:$('alk').value,expires_at:$('ae').value?new Date($('ae').value).toISOString():null});if(error)return alert(error.message);$('ai').value=$('alk').value='';la()}
+async function saveAd(){if(!$('ai').value||!$('alk').value)return alert('ছবি ও লিংক দিন');if(bad($('ai').value)||bad($('alk').value))return alert('লিংকে javascript:/data: ব্যবহার করা যাবে না');const{error}=await sb.from('ads').insert({kind:$('ak').value,image_url:$('ai').value,link:$('alk').value,expires_at:$('ae').value?new Date($('ae').value).toISOString():null});if(error)return alert(error.message);$('ai').value=$('alk').value='';la()}
 async function da(id){await sb.from('ads').delete().eq('id',id);la()}
-async function ls(){const{data}=await sb.from('settings').select('*').eq('id',1).single();
-$('sf').innerHTML=SET.map(([t,fs])=>`<div class="card"><h3>${t}</h3>${fs.map(([k,l,ty])=>`<label>${l}</label>${ty=='a'?`<textarea id="s_${k}" rows="4"></textarea>`:`<input id="s_${k}">`}`).join('')}</div>`).join('');
-F.forEach(k=>$('s_'+k).value=data?.[k]||'')}
-async function saveSet(){const o={};F.forEach(k=>o[k]=$('s_'+k).value);const{error}=await sb.from('settings').update(o).eq('id',1);alert(error?error.message:'✅ Saved')}
-chk()</script></body></html>
+async function ls(){const{data}=await sb.from('settings').select('*').eq('id',1).single();MT=!!data?.maintenance;
+$('sf').innerHTML=MTC+MFC+SET.map(([t,fs])=>`<div class="card"><h3>${t}</h3>${fs.map(([k,l,ty])=>`<label>${l}</label>${ty=='a'?`<textarea id="s_${k}" rows="4"></textarea>`:`<input id="s_${k}">`}`).join('')}</div>`).join('');
+F.forEach(k=>$('s_'+k).value=data?.[k]||'');mtUI();mfUI()}
+async function saveSet(){const o={};F.forEach(k=>o[k]=$('s_'+k).value);if(['adsterra_link','tg_channel','fb','admin_tg','success_tg'].some(k=>bad(o[k])))return alert('লিংকে javascript:/data: ব্যবহার করা যাবে না');const{error}=await sb.from('settings').update(o).eq('id',1);alert(error?error.message:'✅ Saved')}
+capInit('cf');chk()</script></body></html>
