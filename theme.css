@@ -1,0 +1,151 @@
+/* theme.css — ৩D আধুনিক ডিজাইন + ৪টি থিম (neon, sunset, ocean, light)
+   index.html / post.html / info.html এর নিজস্ব <style> এর পরে লোড হয়, তাই এটি ওপরে বসে। */
+
+/* ================= থিমের রঙ ================= */
+:root,:root[data-theme="neon"]{
+  --bg:#0b0b1e;--c:#1b1b3a;--c2:#13132d;--h:#16163c;--bd:#35356e;
+  --g:#00e5ff;--p:#b44cff;--t:#f6f6ff;--t2:#aeb3d4;
+  --sh:rgba(0,0,0,.55);--edge:#4b1a86;--edge2:#262652;
+  --glow:rgba(180,76,255,.25);--glow2:rgba(0,229,255,.16);
+  --navbg:#101032;--ftbg:rgba(10,10,32,.9);--tkbg:#06061a;--tkc:#00e5ff;
+}
+:root[data-theme="sunset"]{
+  --bg:#1a0c14;--c:#2d1522;--c2:#210f19;--h:#2d1522;--bd:#6a2e45;
+  --g:#ffb020;--p:#ff3d7f;--t:#fff5f1;--t2:#dcaab8;
+  --sh:rgba(0,0,0,.55);--edge:#9a1448;--edge2:#4a2034;
+  --glow:rgba(255,61,127,.24);--glow2:rgba(255,176,32,.16);
+  --navbg:#240f1a;--ftbg:rgba(30,10,20,.9);--tkbg:#12060c;--tkc:#ffb020;
+}
+:root[data-theme="ocean"]{
+  --bg:#06141f;--c:#0f2c40;--c2:#0a2031;--h:#0f2c40;--bd:#235674;
+  --g:#2ee6c5;--p:#2f8dff;--t:#effbff;--t2:#9fc8dc;
+  --sh:rgba(0,0,0,.5);--edge:#1a4fa3;--edge2:#16405a;
+  --glow:rgba(47,141,255,.24);--glow2:rgba(46,230,197,.16);
+  --navbg:#0a2234;--ftbg:rgba(6,20,31,.9);--tkbg:#030c14;--tkc:#2ee6c5;
+}
+:root[data-theme="light"]{
+  --bg:#eef2ff;--c:#ffffff;--c2:#f5f7ff;--h:#ffffff;--bd:#d5dcf5;
+  --g:#00a6d6;--p:#7c3aed;--t:#1a1d3a;--t2:#5a6190;
+  --sh:rgba(60,72,150,.28);--edge:#4c1d95;--edge2:#c9d1f0;
+  --glow:rgba(124,58,237,.14);--glow2:rgba(0,166,214,.14);
+  --navbg:#ffffff;--ftbg:rgba(255,255,255,.92);--tkbg:#ffffff;--tkc:#7c3aed;
+}
+
+/* ================= সাধারণ ================= */
+*{-webkit-tap-highlight-color:transparent}
+body{
+  background:
+    radial-gradient(900px 520px at 8% -8%,var(--glow),transparent 62%),
+    radial-gradient(800px 520px at 100% 0,var(--glow2),transparent 62%),
+    var(--bg);
+  background-attachment:fixed;
+  color:var(--t);font-size:16px;
+}
+
+/* হেডার */
+header{background:var(--h);border-bottom:1px solid var(--bd);box-shadow:0 8px 22px -10px var(--sh);position:relative;z-index:7;padding:14px 16px}
+header>b,header>a:first-child{
+  font-size:22px;font-weight:800;letter-spacing:.2px;
+  background:linear-gradient(135deg,var(--p),var(--g));-webkit-background-clip:text;background-clip:text;color:transparent;
+}
+
+/* স্ক্রলিং নোটিশ */
+.tk{background:var(--tkbg);border-bottom:1px solid var(--bd)}
+.tk span{color:var(--tkc);font-size:15px;font-weight:600;padding-top:8px;padding-bottom:8px}
+
+/* ================= ৩D বাটন ================= */
+.b{
+  position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--p),var(--g));
+  color:#fff;border:0;border-radius:14px;
+  padding:13px 12px;font-size:15.5px;font-weight:700;
+  box-shadow:0 5px 0 var(--edge),0 12px 20px -6px var(--sh);
+  transition:transform .12s,box-shadow .12s,filter .15s;
+}
+.b::after{content:"";position:absolute;left:0;right:0;top:0;height:50%;background:linear-gradient(rgba(255,255,255,.3),rgba(255,255,255,0));pointer-events:none}
+.b:active{transform:translateY(4px);box-shadow:0 1px 0 var(--edge),0 4px 8px -2px var(--sh)}
+@media(hover:hover){.b:hover{filter:brightness(1.1)}}
+.b.s{background:var(--c2);color:var(--t);border:1px solid var(--bd);box-shadow:0 5px 0 var(--edge2),0 10px 18px -8px var(--sh)}
+.b.s:active{box-shadow:0 1px 0 var(--edge2)}
+.mb .b{font-size:15px}
+
+/* ================= নেভিগেশন ================= */
+nav{background:var(--navbg);border-bottom:1px solid var(--bd);box-shadow:0 8px 18px -12px var(--sh);padding:12px 12px 14px;gap:9px}
+nav button{
+  background:var(--c);color:var(--t2);border:1px solid var(--bd);border-radius:16px;
+  padding:9px 12px;min-width:66px;font-size:13.5px;font-weight:600;
+  box-shadow:0 4px 0 var(--edge2),0 8px 14px -8px var(--sh);
+  transition:transform .12s,box-shadow .12s;
+}
+nav button i{font-size:23px}
+nav button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge2)}
+nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;border:0;box-shadow:0 4px 0 var(--edge),0 10px 16px -6px var(--sh)}
+
+/* সার্চ */
+#q{font-size:16.5px;padding:14px 16px;border-radius:18px;background:var(--c);color:var(--t);border:1px solid var(--bd);box-shadow:inset 0 3px 8px var(--sh),0 1px 0 var(--bd)}
+#q::placeholder{color:var(--t2)}
+#q:focus{outline:0;border-color:var(--p);box-shadow:inset 0 3px 8px var(--sh),0 0 0 3px var(--glow)}
+
+/* ================= পোস্ট গ্রিড (৩D কার্ড) ================= */
+.sec{background:var(--c);border:1px solid var(--bd);border-radius:22px;padding:16px;box-shadow:0 18px 36px -18px var(--sh),0 1px 0 rgba(255,255,255,.06) inset}
+.sec h2{font-size:19px;font-weight:800;margin-bottom:14px}
+#gr{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;perspective:1100px}
+@media(min-width:720px){#gr{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
+@media(max-width:420px){#gr{gap:10px}}
+.cd{
+  background:var(--c2);border:1px solid var(--bd);border-radius:18px;
+  box-shadow:0 6px 0 var(--edge2),0 18px 26px -14px var(--sh);
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s;
+  animation:vvpop .45s ease backwards;
+}
+.cd img{background:var(--c);border-bottom:1px solid var(--bd)}
+.cd .i{padding:11px 11px 13px}
+.cd h3{font-size:15.5px;line-height:1.4;height:44px;font-weight:700}
+.cd small{color:var(--t2);font-size:12.5px;margin:6px 0 8px}
+.cd .b{padding:11px 6px;font-size:14.5px;border-radius:12px}
+@media(hover:hover){.cd:hover{transform:translateY(-8px) rotateX(3deg);box-shadow:0 14px 0 var(--edge2),0 30px 34px -14px var(--sh);border-color:var(--p)}}
+.cd:active{transform:translateY(3px);box-shadow:0 2px 0 var(--edge2)}
+@keyframes vvpop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+
+/* পেজ নম্বর */
+#pg button{background:var(--c);color:var(--t);border:1px solid var(--bd);border-radius:12px;padding:10px 14px;font-size:15px;font-weight:600;box-shadow:0 4px 0 var(--edge2)}
+#pg button:active{transform:translateY(3px);box-shadow:0 1px 0 var(--edge2)}
+#pg .on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;border:0;box-shadow:0 4px 0 var(--edge)}
+
+/* নিচের ফিক্সড বার */
+.ft{background:var(--ftbg);border-top:1px solid var(--bd);padding:11px}
+.ft a{color:#fff;font-weight:700;font-size:15px;padding:11px 20px;box-shadow:0 4px 0 rgba(0,0,0,.35),0 8px 14px -6px var(--sh)}
+
+/* ================= পোস্ট পেজ / তথ্য পেজ ================= */
+.panel{background:var(--c);border:1px solid var(--bd);border-radius:24px;box-shadow:0 22px 44px -20px var(--sh),0 1px 0 rgba(255,255,255,.06) inset}
+.hero{background:var(--c2)}
+h1{font-size:25px;line-height:1.4;font-weight:800}
+@media(max-width:420px){h1{font-size:21px}}
+.desc{color:var(--t);font-size:17px;line-height:1.95}
+.meta{color:var(--t2);font-size:14.5px}
+.bd{background:var(--c2);color:var(--t2);border:1px solid var(--bd);font-size:13px;padding:4px 12px;border-radius:999px}
+.sh{border-top:1px solid var(--bd)}
+.sh h4{font-size:16px}
+.lk{background:var(--c2);border:1px solid var(--bd);border-radius:14px;box-shadow:inset 0 2px 6px var(--sh)}
+.up{color:var(--t2)}
+.tabs a{background:var(--c);color:var(--t2);border:1px solid var(--bd);border-radius:999px;font-size:14px;padding:9px 16px;box-shadow:0 3px 0 var(--edge2)}
+.tabs a.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;border:0;box-shadow:0 3px 0 var(--edge)}
+.panel p,.panel li{color:var(--t)}
+.panel h2{color:var(--g);font-size:18px}
+.ct a{background:var(--c2);border:1px solid var(--bd);color:var(--t);border-radius:14px;box-shadow:0 4px 0 var(--edge2)}
+
+/* ================= পপ-আপ / লগইন বক্স ================= */
+.ov{background:rgba(0,0,0,.62);backdrop-filter:blur(4px)}
+.mb{background:var(--c);border:1px solid var(--p);border-radius:24px;padding:24px;box-shadow:0 30px 60px -20px var(--sh),0 0 0 4px var(--glow)}
+.mb input{background:var(--c2);color:var(--t);border:1px solid var(--bd);border-radius:12px;padding:13px;font-size:16px;margin:6px 0;box-shadow:inset 0 2px 6px var(--sh)}
+.mb input:focus{outline:0;border-color:var(--p)}
+.x{color:var(--t)}
+.mb a{color:var(--g)}
+
+/* ================= ফুটার ================= */
+.fl{border-top:1px solid var(--bd);color:var(--t2);font-size:13px}
+.fl a{color:var(--t2);font-size:14px}
+.fl a:hover{color:var(--g)}
+footer{color:var(--t2)}
+
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
