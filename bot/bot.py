@@ -84,51 +84,50 @@ async def copy_via_api(to_chat, mid):
     return data["result"]["message_id"]
 
 
-async def is_premium_user(user):
-    """প্রিমিয়াম অনুমোদিত ইউজার কিনা যাচাই।"""
-    # ১) আগে যাদের Telegram ID অ্যাকাউন্টের সাথে যুক্ত করা আছে
-    ok = await get(f"/profiles?tg_id=eq.{user.id}&status=eq.approved&select=id")
-    if isinstance(ok, list) and ok:
-        return True
-    # ২) রেজিস্ট্রেশনের সময় দেওয়া Telegram ইউজারনেম মিলিয়ে (ইউজারনেম না থাকলে হবে না)
-    u = (user.username or "").lower()
-    if not u:
-        return False
-    ok = await get(f"/profiles?tg_username=eq.{quote(u, safe='')}&tg_id=is.null&status=eq.approved&select=id")
-    return isinstance(ok, list) and bool(ok)
+TOKEN_MIN = 10  # ওয়েবসাইট থেকে পাওয়া লিংক কত মিনিট কাজ করবে
+
+
+async def consume_token(tok):
+    """টোকেন একবারই ব্যবহার করা যায়: মুছে ফেলার সাথে সাথে msg_id ফেরত আসে।"""
+    cut = ts(datetime.now(timezone.utc) - timedelta(minutes=TOKEN_MIN))
+    hdr = {**H, "Prefer": "return=representation"}
+    async with ses().delete(
+        SB + f"/dl_tokens?token=eq.{quote(tok, safe='')}&created_at=gt.{cut}", headers=hdr
+    ) as r:
+        rows = await r.json()
+    return int(rows[0]["msg_id"]) if isinstance(rows, list) and rows else None
 
 
 async def start(c, m):
     try:
-        if len(m.command) < 2 or not m.command[1].startswith("video_"):
+        payload = m.command[1] if len(m.command) > 1 else ""
+        if not payload:
             return await m.reply("🔥 Viral Video বটে স্বাগতম! ওয়েবসাইট থেকে ভিডিও লিংকে ক্লিক করুন।")
         uid = m.from_user.id
         is_admin = uid == ADMIN
         if not is_admin and too_fast(uid):
             return await m.reply("⏳ একটু অপেক্ষা করুন, কয়েক সেকেন্ড পর আবার চেষ্টা করুন।")
-        try:
-            mid = int(m.command[1][6:])
-        except ValueError:
-            return await m.reply("❌ ভিডিও পাওয়া যায়নি।")
 
-        # রক্ষণাবেক্ষণ-চেক আর ভিডিও-খোঁজা একসাথে চলে
-        st, r = await asyncio.gather(
-            get("/settings?id=eq.1&select=maintenance"),
-            get(f"/post_links?tg_msg_id=eq.{mid}&select=posts(type)"),
-        )
-        if isinstance(st, list) and st and st[0].get("maintenance") and not is_admin:
-            return await m.reply("🛠️ রক্ষণাবেক্ষণের কাজ চলছে। খুব দ্রুত সমাধান করা হবে। সাময়িক সময়ের জন্য আমরা দুঃখিত।")
-        if not isinstance(r, list) or not r:
-            return await m.reply("❌ ভিডিও পাওয়া যায়নি।")
-
-        post = r[0].get("posts") or {}
-        if post.get("type") == "premium" and not is_admin:
-            if not await is_premium_user(m.from_user):
-                return await m.reply(
-                    "🔒 প্রিমিয়াম! ওয়েবসাইটে অ্যাকাউন্ট করে অ্যাডমিনের অনুমোদন নিন। "
-                    "রেজিস্ট্রেশনের সময় যে Telegram ইউজারনেম দিয়েছেন, সেই অ্যাকাউন্ট থেকেই এখানে আসতে হবে। "
-                    "(Telegram সেটিংসে আপনার একটি ইউজারনেম সেট করা থাকতে হবে।)"
-                )
+        mid = None
+        if payload.startswith("t_"):
+            tok = payload[2:]
+            if not tok.isalnum() or len(tok) > 64:
+                return await m.reply("❌ লিংকটি ঠিক নয়। ওয়েবসাইট থেকে আবার চেষ্টা করুন।")
+            st, mid = await asyncio.gather(
+                get("/settings?id=eq.1&select=maintenance"),
+                consume_token(tok),
+            )
+            if isinstance(st, list) and st and st[0].get("maintenance") and not is_admin:
+                return await m.reply("🛠️ রক্ষণাবেক্ষণের কাজ চলছে। খুব দ্রুত সমাধান করা হবে। সাময়িক সময়ের জন্য আমরা দুঃখিত।")
+            if mid is None:
+                return await m.reply("⌛ এই লিংকের মেয়াদ শেষ অথবা আগেই ব্যবহার হয়ে গেছে। ওয়েবসাইট থেকে ভিডিওটি আবার খুলুন।")
+        elif payload.startswith("video_") and is_admin:
+            try:
+                mid = int(payload[6:])
+            except ValueError:
+                return await m.reply("❌ ভিডিও পাওয়া যায়নি।")
+        else:
+            return await m.reply("🔗 ভিডিও দেখতে ওয়েবসাইটে গিয়ে ভিডিওর Watch/Download বাটনে চাপুন।")
 
         vid = await copy_via_api(m.chat.id, mid)
         n = await m.reply(f"⏳ এই ভিডিও {HOURS} ঘণ্টা পর অটো ডিলিট হয়ে যাবে। আবার দেখতে হলে ওয়েবসাইট থেকে আসুন।")
@@ -145,6 +144,8 @@ async def sweeper():
     while True:
         try:
             now = ts(datetime.now(timezone.utc))
+            old_cut = ts(datetime.now(timezone.utc) - timedelta(minutes=30))
+            await ses().delete(SB + f"/dl_tokens?created_at=lt.{old_cut}", headers=H)
             rows = await get(f"/bot_deletes?delete_at=lt.{now}&select=id,chat_id,message_id")
             if isinstance(rows, list):
                 for d in rows:
