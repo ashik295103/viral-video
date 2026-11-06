@@ -110,13 +110,14 @@ catch(e){if(e.name!=='AbortError')prompt('এই লিংকটি কপি �
 }
 async function dl(){
 const al=safeUrl(S.adsterra_link);if(al!=='#')window.open(al,'_blank','noopener');
-const{data,error}=await sb.rpc('get_link',{pid:P.id});
+const[a,b]=await Promise.all([sb.rpc('get_link',{pid:P.id}),sb.rpc('make_dl_token',{pid:P.id})]);
+const{data,error}=a;
 if(error){if(/maintenance/.test(error.message))return alert('সাইটে রক্ষণাবেক্ষণের কাজ চলছে। কিছুক্ষণ পর চেষ্টা করুন।');if(/disabled/.test(error.message))return alert('আপনার অ্যাকাউন্ট বন্ধ করা হয়েছে।');return prof?showSub():showForm()}
-if(data?.tg)location.href=`https://t.me/${(S.bot_username||'').replace('@','')}?start=video_${data.tg}`;
+if(data?.tg){if(b.error||!b.data)return alert('লিংক তৈরি করা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।');location.href=`https://t.me/${(S.bot_username||'').replace('@','')}?start=t_${b.data}`}
 else if(data?.direct)location.href=safeUrl(data.direct);
 else alert('এই কনটেন্টের ডাউনলোড লিংক এখনো যুক্ত করা হয়নি।');
 }
-async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')},captchaToken:capToken()}});capReset();if(error)return alert(error.message);const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;showSub()}
+async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','').trim().toLowerCase()},captchaToken:capToken()}});capReset();if(error)return alert(error.message);const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;showSub()}
 async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value,options:{captchaToken:capToken()}});capReset();if(error)return alert(error.message);const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;cl('lock')}
 init();
 </script>
