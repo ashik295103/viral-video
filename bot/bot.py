@@ -47,6 +47,23 @@ async def resolve_channel():
         return False
 
 
+async def copy_via_api(to_chat, mid):
+    """Bot API দিয়ে কপি করে। এতে Pyrogram-এর peer ক্যাশ লাগে না, প্রাইভেট চ্যানেলেও চলে।"""
+    url = f"https://api.telegram.org/bot{E['BOT_TOKEN']}/copyMessage"
+    payload = {
+        "chat_id": to_chat,
+        "from_chat_id": LOG,
+        "message_id": mid,
+        "protect_content": True,
+    }
+    async with aiohttp.ClientSession() as s:
+        async with s.post(url, json=payload) as r:
+            data = await r.json()
+    if not data.get("ok"):
+        raise RuntimeError(data.get("description", "copyMessage failed"))
+    return data["result"]["message_id"]
+
+
 async def start(c, m):
     print("START PELAM:", m.text, flush=True)
     try:
@@ -62,15 +79,9 @@ async def start(c, m):
             ok = await get(f"/profiles?tg_username=ilike.{u}&status=eq.approved&select=id")
             if not ok or not isinstance(ok, list):
                 return await m.reply("🔒 প্রিমিয়াম! ওয়েবসাইটে রেজিস্ট্রেশনের সময় এই Telegram username দিন এবং অ্যাডমিনের অনুমোদন নিন।")
-        try:
-            v = await c.copy_message(m.chat.id, LOG, mid, protect_content=True)
-        except Exception as e:
-            # peer ক্যাশে না থাকলে একবার resolve করে আবার চেষ্টা
-            print("COPY ERROR, retrying:", repr(e), flush=True)
-            await resolve_channel()
-            v = await c.copy_message(m.chat.id, LOG, mid, protect_content=True)
+        vid = await copy_via_api(m.chat.id, mid)
         n = await m.reply(f"⏳ এই ভিডিও {HOURS} ঘণ্টা পর অটো ডিলিট হয়ে যাবে। আবার দেখতে হলে ওয়েবসাইট থেকে আসুন।")
-        await schedule(m.chat.id, v.id, n.id, m.id)
+        await schedule(m.chat.id, vid, n.id, m.id)
     except Exception as e:
         print("START ERROR:", repr(e), flush=True)
         try:
