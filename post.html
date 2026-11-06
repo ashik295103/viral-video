@@ -39,6 +39,7 @@ h1{font-size:21px;line-height:1.4;margin:6px 0 12px}
 @media(max-width:420px){h1{font-size:18px}.body{padding:12px}}
 .fl{max-width:980px;margin:18px auto 0;padding:16px 12px;border-top:1px solid var(--bd);text-align:center;color:#889;font-size:12px}.fl a{color:#aab;text-decoration:none;display:inline-block;margin:4px 8px;font-size:13px}.fl a:hover{color:var(--g)}.fl p{margin-top:8px;line-height:1.6}
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 <header><a href="index.html">🔥 Viral Video</a><a href="index.html" style="font-size:14px;font-weight:normal">← হোম</a></header>
@@ -65,7 +66,7 @@ function descBlock(t){t=(t||'').trim();if(!t)return '<div class="desc">এই �
 async function init(){
 capInit('cf');
 const id=new URLSearchParams(location.search).get('v');
-const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};
+const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};applyTheme(S);
 const{data:{session}}=await sb.auth.getSession();if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;
 if(maintGate(S,prof))return;
 ['adsterra_script','ad_popunder','ad_socialbar'].forEach(k=>{if(S[k])inj(document.body,S[k])});
