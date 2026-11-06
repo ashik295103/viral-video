@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Viral Video</title>
+<link rel="preconnect" href="https://xeedxpwlvdaengupbxbc.supabase.co" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="dns-prefetch" href="//pl32107782.profitableratecpmnetwork.com">
+<link rel="dns-prefetch" href="//pl32107781.profitableratecpmnetwork.com">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="config.js"></script>
 <script src="maint.js"></script>
@@ -34,7 +38,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 #bn img{width:100%;display:block}
 .sec{background:var(--c);border:1px solid var(--bd);border-radius:12px;padding:12px;margin:12px 0}
 .sec h2{font-size:15px;margin-bottom:10px}
-#gr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#gr{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-height:200px}
 .cd{background:#0e0e20;border:1px solid var(--bd);border-radius:10px;overflow:hidden;cursor:pointer;display:flex;flex-direction:column}
 .cd:hover,.cd:focus{border-color:var(--p);outline:0}
 .cd img{width:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:#000}
@@ -61,7 +65,7 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 <link rel="stylesheet" href="theme.css">
 </head>
 <body>
-<header><b>🔥 Viral Video</b><div style="display:flex;gap:6px"><button class="b" id="lk" style="width:auto;padding:8px 12px;display:none" onclick="tgLink()">🔗 Telegram</button><button class="b" id="au" style="width:auto;padding:8px 14px"></button></div></header>
+<header><b>🔥 Viral Video</b><div style="display:flex;gap:6px"><button class="b" id="au" style="width:auto;padding:8px 14px"></button></div></header>
 <div class="tk"><span id="tk"></span></div>
 <div class="wrap"><input id="q" placeholder="🔍 টাইটেল বা ট্যাগ লিখে সার্চ করুন..." autocomplete="off"></div>
 <nav id="nv"></nav>
@@ -77,23 +81,29 @@ nav button.on{background:linear-gradient(135deg,var(--p),var(--g));color:#fff;bo
 <div class="ov" id="lock"><div class="mb"><button class="x" onclick="cl('lock')">×</button><p id="lt"></p><br><div id="fm"><input id="em" type="email" placeholder="Email"><input id="pw" type="password" placeholder="Password (min 6)"><input id="tg" placeholder="Telegram username (@ ছাড়া)"><div id="cf" style="margin:6px 0"></div><button class="b" onclick="reg()">Register</button><button class="b" onclick="login()">Login</button></div></div></div>
 <div class="ov" id="pop"><div class="mb"><button class="x" onclick="cl('pop')">×</button><a id="pa" target="_blank" rel="noopener"><img id="pi" style="width:100%;border-radius:10px"></a></div></div>
 <script>
-const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on');
-let S={},page=1,cat='home',q='',prof=null;
-const PER=10;
+const sb=supabase.createClient(CFG.U,CFG.K),$=i=>document.getElementById(i),cl=i=>$(i).classList.remove('on'),R=b=>Promise.resolve(b);
+let S={},page=1,cat='home',q='',prof=null,LR=0;
+const PER=10,COLS='id,title,thumb,type,category,views,created_at';
 const NV=[['home','হোম','🏠'],['video','ভিডিও','🎬'],['photo','ফটো','🖼️'],['story','গল্প','📖'],['viral','ভাইরাল','🔥'],['premium','প্রিমিয়াম','👑']];
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function ago(d){const s=(Date.now()-new Date(d))/1000,u=[[31536e3,'year'],[2592e3,'month'],[86400,'day'],[3600,'hour'],[60,'minute']];for(const[n,l]of u)if(s>=n){const v=Math.floor(s/n);return v+' '+l+(v>1?'s':'')+' ago'}return 'just now'}
 const tgl=()=>{const a=S.success_tg||S.admin_tg||'sgboss27';return /^http/.test(a)?a:'https://t.me/'+a.replace('@','')};
 let Q=Promise.resolve();
-function inj(el,html){Q=Q.then(async()=>{const d=document.createElement('div');d.innerHTML=html;const sc=[...d.querySelectorAll('script')];el.appendChild(d);for(const o of sc){const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;await new Promise(r=>{if(n.src){n.onload=n.onerror=r}o.replaceWith(n);if(!n.src)r()})}}).catch(()=>{})}
+function inj(el,html){Q=Q.then(async()=>{const d=document.createElement('div');d.innerHTML=html;const sc=[...d.querySelectorAll('script')];el.appendChild(d);for(const o of sc){const n=document.createElement('script');[...o.attributes].forEach(a=>n.setAttribute(a.name,a.value));n.text=o.text;await new Promise(r=>{if(n.src){n.onload=n.onerror=r;setTimeout(r,4000)}o.replaceWith(n);if(!n.src)r()})}}).catch(()=>{})}
 function showForm(){$('lt').textContent='প্রিমিয়াম কনটেন্টের জন্য অ্যাকাউন্ট করুন এবং সাবস্ক্রিপশনের জন্য অ্যাডমিনের সাথে যোগাযোগ করুন।';$('fm').style.display='block';$('lock').classList.add('on')}
 function showSub(){const lb=(S.success_tg||S.admin_tg)?'অ্যাডমিনকে Telegram এ মেসেজ দিন':'@sgboss27 এটাতে মেসেজ দিন';$('lt').innerHTML=`✅ আপনার অ্যাকাউন্ট রয়েছে! প্রিমিয়াম দেখতে সাবস্ক্রিপশন কিনার জন্য অ্যাডমিনের সাথে যোগাযোগ করুন:<br><br><a target="_blank" rel="noopener" href="${esc(tgl())}">👉 ${lb}</a>`;$('fm').style.display='none';$('lock').classList.add('on')}
 async function init(){
 capInit('cf');
 const old=new URLSearchParams(location.search).get('v');
 if(old&&/^\d+$/.test(old)){location.replace('post.html?v='+old);return}
-const{data}=await sb.from('settings').select('*').eq('id',1).single();S=data||{};applyTheme(S);
-await me();
+// সব রিকুয়েস্ট একসাথে শুরু হয় (আগে একটার পর একটা চলত)
+const pS=R(sb.from('settings').select('*').eq('id',1).single());
+const pA=R(sb.from('ads').select('*').eq('active',true).or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`));
+const pM=me();
+let tm;$('q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value.trim();page=1;nav();load()},350)};
+nav();load();
+const{data}=await pS;S=data||{};applyTheme(S);
+await pM;
 if(maintGate(S,prof))return;
 $('tk').textContent=S.ticker||'';
 if(S.tg_channel)$('tgb').href=safeUrl(S.tg_channel);else $('tgb').style.display='none';
@@ -101,26 +111,17 @@ if(S.fb){$('fbb').href=safeUrl(S.fb);$('fbb').style.display='inline-block'}
 ['adsterra_script','ad_popunder','ad_socialbar'].forEach(k=>{if(S[k])inj(document.body,S[k])});
 if(S.ad_banner)inj($('adb'),S.ad_banner);
 if(S.ad_native)inj($('adn'),S.ad_native);
-nav();ads();
-let tm;$('q').oninput=e=>{clearTimeout(tm);tm=setTimeout(()=>{q=e.target.value.trim();page=1;nav();load()},350)};
-load();
+ads(pA);
 }
 async function me(){const{data:{session}}=await sb.auth.getSession();prof=null;if(session)prof=(await sb.from('profiles').select('*').eq('id',session.user.id).single()).data;
-$('lk').style.display=session?'inline-block':'none';
 $('au').textContent=session?'Logout ('+(prof?.status||'')+')':'Login / Register';
 $('au').onclick=()=>session?sb.auth.signOut().then(()=>location.reload()):showForm()}
-async function tgLink(){const{data,error}=await sb.rpc('make_link_code');if(error)return alert(error.message);prompt('Telegram এ @'+(S.bot_username||'বট')+' এর কাছে এই লেখাটি পাঠান (১০ মিনিট মেয়াদ):','/link '+data)}
 function nav(){$('nv').innerHTML=NV.map(([k,l,ic])=>`<button class="${k==cat?'on':''}" onclick="cat='${k}';q='';$('q').value='';page=1;nav();load()"><i>${ic}</i>${l}</button>`).join('');$('sh').textContent=q?'🔍 সার্চ রেজাল্ট: '+q:(()=>{const n=NV.find(n=>n[0]==cat)||[];return (n[2]||'')+' '+(n[1]||'')})()}
 const go=id=>location.href='post.html?v='+encodeURIComponent(id);
-async function load(){
-let r=sb.from('posts').select('*',{count:'exact'}).order('created_at',{ascending:false}).range((page-1)*PER,page*PER-1);
-if(!q)r=cat==='home'?r.neq('type','premium'):cat==='viral'?r.eq('type','viral'):cat==='premium'?r.eq('type','premium'):r.eq('category',cat).neq('type','premium');
-else q.split(/[\s,#]+/).map(w=>w.replace(/[%*(),.:"'\\_]/g,'')).filter(Boolean).slice(0,5).forEach(w=>{r=r.or(`title.ilike.%${w}%,tags.ilike.%${w}%`)});
-const{data,count}=await r;
+function paint(data,count){
 $('gr').innerHTML=(data||[]).map(p=>`<div class="cd" role="button" tabindex="0" onclick="go(${Number(p.id)})" onkeydown="if(event.key==='Enter'){go(${Number(p.id)})}">
-${p.thumb?`<img src="${esc(p.thumb)}" loading="lazy" alt="${esc(p.title)}">`:''}
+${p.thumb?`<img src="${esc(p.thumb)}" loading="lazy" decoding="async" alt="${esc(p.title)}">`:''}
 <div class="i"><h3>${p.type==='premium'?'🔒 ':''}${esc(p.title)}</h3><small>${ago(p.created_at)} • 👁 ${Number(p.views||0)}</small><button class="b" onclick="event.stopPropagation();go(${Number(p.id)})">${p.category==='video'?'▶ Watch':'⬇ Download'}</button></div></div>`).join('')||'<p style="grid-column:1/3;text-align:center;color:#889">কিছু নেই</p>';
-if(data?.length)sb.rpc('imp',{ids:data.map(p=>p.id)});
 const n=Math.ceil((count||0)/PER);let h='';
 const go2=i=>`onclick="page=${i};load();scrollTo(0,0)"`;
 if(page>1)h+=`<button ${go2(page-1)}>« Prev</button>`;
@@ -128,19 +129,35 @@ for(let i=Math.max(1,page-2);i<=Math.min(n,Math.max(1,page-2)+4);i++)h+=`<button
 if(page<n)h+=`<button ${go2(page+1)}>Next »</button>`;
 $('pg').innerHTML=h;
 }
+async function load(){
+const rid=++LR,key='pl:'+cat+':'+page;let shown=false;
+// আগে দেখা লিস্ট থাকলে সাথে সাথে দেখাই, পেছনে নতুন ডেটা আনি
+if(!q){try{const c=sessionStorage.getItem(key);if(c){const j=JSON.parse(c);paint(j.d,j.c);shown=true}}catch(e){}}
+if(!shown)$('gr').innerHTML='<p style="grid-column:1/3;text-align:center;color:#889">লোড হচ্ছে...</p>';
+let r=sb.from('posts').select(COLS,{count:'estimated'}).order('created_at',{ascending:false}).range((page-1)*PER,page*PER-1);
+if(!q)r=cat==='home'?r.neq('type','premium'):cat==='viral'?r.eq('type','viral'):cat==='premium'?r.eq('type','premium'):r.eq('category',cat).neq('type','premium');
+else q.split(/[\s,#]+/).map(w=>w.replace(/[%*(),.:"'\\_]/g,'')).filter(Boolean).slice(0,5).forEach(w=>{r=r.or(`title.ilike.%${w}%,tags.ilike.%${w}%`)});
+const{data,count,error}=await r;
+if(rid!==LR)return; // দ্রুত ক্যাটাগরি বদলালে পুরনো উত্তর বাদ
+if(error){if(!shown)paint([],0);return}
+if(!q){try{sessionStorage.setItem(key,JSON.stringify({d:data||[],c:count||0}))}catch(e){}}
+paint(data,count);
+if(data?.length)sb.rpc('imp',{ids:data.map(p=>p.id)}).then(()=>{},()=>{});
+}
 async function reg(){const{error}=await sb.auth.signUp({email:$('em').value,password:$('pw').value,options:{data:{tg:$('tg').value.replace('@','')},captchaToken:capToken()}});capReset();if(error)return alert(error.message);await me();showSub()}
 async function login(){const{error}=await sb.auth.signInWithPassword({email:$('em').value,password:$('pw').value,options:{captchaToken:capToken()}});capReset();if(error)return alert(error.message);cl('lock');me()}
-async function ads(){
-const now=new Date().toISOString();const{data}=await sb.from('ads').select('*').eq('active',true).or(`expires_at.is.null,expires_at.gt.${now}`);
+const adc=id=>{sb.rpc('ad_click',{aid:Number(id)}).then(()=>{},()=>{})};
+async function ads(p){
+const{data}=await p;
 const bn=(data||[]).filter(a=>a.kind==='banner'),pp=(data||[]).filter(a=>a.kind==='popup');
-if(bn.length){$('bn').innerHTML='<div>'+bn.map(a=>`<a href="${esc(safeUrl(a.link))}" target="_blank" rel="noopener" onclick="sb.rpc('ad_click',{aid:${Number(a.id)}})"><img src="${esc(a.image_url)}"></a>`).join('')+'</div>';let i=0;setInterval(()=>{if($('bn').firstChild){i=(i+1)%bn.length;$('bn').firstChild.style.transform=`translateX(-${i*100}%)`}},4000)}
+if(bn.length){$('bn').innerHTML='<div>'+bn.map(a=>`<a href="${esc(safeUrl(a.link))}" target="_blank" rel="noopener" onclick="adc(${Number(a.id)})"><img src="${esc(a.image_url)}" decoding="async"></a>`).join('')+'</div>';let i=0;setInterval(()=>{if($('bn').firstChild){i=(i+1)%bn.length;$('bn').firstChild.style.transform=`translateX(-${i*100}%)`}},4000)}
 const last=+localStorage.getItem('pp')||0;
-if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;$('pa').href=safeUrl(a.link);$('pa').onclick=()=>sb.rpc('ad_click',{aid:a.id});setTimeout(()=>{$('pop').classList.add('on');localStorage.setItem('pp',Date.now())},3000)}
+if(pp.length&&Date.now()-last>20*60*1000){const a=pp[0];$('pi').src=a.image_url;$('pa').href=safeUrl(a.link);$('pa').onclick=()=>adc(a.id);setTimeout(()=>{$('pop').classList.add('on');localStorage.setItem('pp',Date.now())},3000)}
 }
 init();
 </script>
-<script src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
-<script src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
+<script async src="https://pl32107782.profitableratecpmnetwork.com/e9/e1/17/e9e11759170b12b93be1818d4234be7c.js"></script>
+<script async src="https://pl32107781.profitableratecpmnetwork.com/29/ac/16/29ac160c3ea5eebf8814fbc36f164ee1.js"></script>
 <div id="abk" style="display:none;position:fixed;inset:0;z-index:99999;background:#0a0a14f5;align-items:center;justify-content:center;padding:20px;text-align:center;color:#eee;font-family:system-ui,sans-serif"><div style="max-width:340px;background:#18182b;border:1px solid #b44cff;border-radius:16px;padding:22px"><div style="font-size:44px">🕵️</div><p style="font-size:17px;font-weight:bold;line-height:1.6;color:#00e5ff;margin:8px 0 14px">ওহো! অ্যাড ব্লকার নিয়ে ঢুকেছো? 😏 ধরে ফেলেছি ভাই, আমার চোখ ফাঁকি দেওয়া এত সোজা না! 🤭</p><h3 style="margin:8px 0">🚫 অ্যাড ব্লকার চালু আছে</h3><p style="line-height:1.7;color:#ccd;margin-bottom:16px">এই সাইট বিজ্ঞাপনের আয়ে চলে। অনুগ্রহ করে অ্যাড ব্লকার (বা প্রাইভেট DNS / ব্রাউজারের ব্লকার) বন্ধ করে পেজটি রিলোড করুন।</p><button onclick="location.reload()" style="background:linear-gradient(135deg,#b44cff,#00e5ff);border:0;color:#fff;border-radius:10px;padding:12px 18px;font:inherit;cursor:pointer;width:100%">আমি বন্ধ করেছি, রিলোড করুন</button></div></div>
 <script>
 (function(){
